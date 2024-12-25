@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+<title>{% block title %} Ecourse UGV Sign Up Page {% endblock title %}</title>
+
+{% load static %}
+
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center mt-2" style="margin-bottom: 80px;">
+    <div class="card p-3" style="border-radius:10px; width:100%; max-width: 400px; background: #ffffff;">
+        <div class="text-center mb-3">
+            <img src="{{ site_info.site_logo.url }}" alt="Logo" style="width: 190px;">
+            <h4>Patient Signup</h4>
+           
+        </div>
+        
+        <form id="signup-form" action="" method="post" style="margin-bottom: 0;">
+            {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li style="color:red">{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_username" class="text-black">Username</label>
+                <input type="text" id="id_username" name="username" class="form-control{% if form.username.errors %} is-invalid{% endif %}" placeholder="ugv.yourname" value="{{ form.username.value|default:'' }}" required>
+                {% if form.username.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.username.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_email" class="text-black">Email</label>
+                <input type="email" id="id_email" name="email" class="form-control{% if form.email.errors %} is-invalid{% endif %}" placeholder="example@gmail.com" value="{{ form.email.value|default:'' }}" required>
+                {% if form.email.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.email.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_password1" class="text-black">Password</label>
+                <div class="input-group" style="position: relative;">
+                    <input type="password" id="id_password1" name="password1" class="form-control{% if form.password1.errors %} is-invalid{% endif %}" placeholder="Password" style="background-color: #d3d3d3; color: black; font-size: 1.25em; padding-right: 45px;" required>
+                    <span class="input-group-text" onclick="togglePasswordVisibility('id_password1', 'eye-icon1')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+                        <i id="eye-icon1" class="fas fa-eye" style="font-size: 1.25em;"></i>
+                    </span>
+                </div>
+                {% if form.password1.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.password1.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_password2" class="text-black">Confirm Password</label>
+                <div class="input-group" style="position: relative;">
+                    <input type="password" id="id_password2" name="password2" class="form-control{% if form.password2.errors %} is-invalid{% endif %}" placeholder="Confirm Password" style="background-color: #d3d3d3; color: black; font-size: 1.25em; padding-right: 45px;" required>
+                    <span class="input-group-text" onclick="togglePasswordVisibility('id_password2', 'eye-icon2')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+                        <i id="eye-icon2" class="fas fa-eye" style="font-size: 1.25em;"></i>
+                    </span>
+                </div>
+                {% if form.password2.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.password2.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <button id="signup-button" class="btn btn-danger btn-block mt-2" type="submit">
+                Sign up
+                <span id="signup-spinner" class="spinner-border spinner-border-sm ml-2" role="status" aria-hidden="true" style="display:none;"></span>
+            </button>
+        </form>
+        
+        <div class="mt-2">
+            <a href="{% url 'login' %}" class="btn btn-link btn-block text-center text-black">Already have an account?</a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('signup-form').addEventListener('submit', function() {
+    document.getElementById('signup-spinner').style.display = 'inline-block';
+    document.getElementById('signup-button').disabled = true;
+});
+
+function togglePasswordVisibility(passwordFieldId, eyeIconId) {
+    const passwordField = document.getElementById(passwordFieldId);
+    const eyeIcon = document.getElementById(eyeIconId);
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordField.type = 'password';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+    }
+}
+</script>
+
+{% endblock content %}

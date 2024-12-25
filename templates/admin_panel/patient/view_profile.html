@@ -1,0 +1,38 @@
+{% extends 'admin_panel/admin_base.html' %}
+
+{% block content %}
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+<div class="card mt-2" style="max-width: 400px; margin: auto;">
+    <div class="card-header text-center">
+        <h4>Patient Profile</h4>
+    </div>
+    <div class="card-body">
+        <p><strong>Patient ID:</strong> {{ profile.patient_id }}</p>
+        <p><strong>Full Name:</strong> {{ profile.full_name }}</p>
+        <p><strong>Date of Birth:</strong> {{ profile.date_of_birth }}</p>
+        <p><strong>Gender:</strong> {{ profile.get_gender_display }}</p>
+        <p><strong>Phone Number:</strong> {{ profile.phone_number }}</p>
+        <p><strong>Blood Type:</strong> {{ profile.get_blood_type_display }}</p>
+        <p><strong>Emergency Contact:</strong> {{ profile.emergency_contact_name }} ({{ profile.emergency_contact_relationship }}) - {{ profile.emergency_contact_phone }}</p>
+        <p><strong>Conditions:</strong>
+            {% if profile.HIV_positive %}HIV Positive, {% endif %}
+            {% if profile.thalassemia %}Thalassemia, {% endif %}
+            {% if profile.diabetes %}Diabetes, {% endif %}
+            {% if profile.hypertension %}Hypertension{% endif %}
+        </p>
+        <p><strong>Notes:</strong> {{ profile.notes }}</p>
+    </div>
+    <div class="card-footer text-center">
+        <a href="{% url 'manage_profile' %}" class="btn btn-primary">Update Profile</a>
+    </div>
+</div>
+{% endblock %}

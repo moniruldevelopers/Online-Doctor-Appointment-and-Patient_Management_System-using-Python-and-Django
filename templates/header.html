@@ -1,0 +1,71 @@
+{% load static %}
+
+
+    <!-- Topbar Start -->
+    <div class="container-fluid bg-light ps-5 pe-0 d-none d-lg-block">
+        <div class="row gx-0">
+            <div class="col-md-6 text-center text-lg-start mb-2 mb-lg-0">
+                <div class="d-inline-flex align-items-center">
+                    <small class="py-2"><i class="far fa-clock text-primary me-2"></i>Opening Hours: Saturday - Thursday: 6.00 am - 10.00 pm, Friday Closed </small>
+                </div>
+            </div>
+            <div class="col-md-6 text-center text-lg-end">
+                <div class="position-relative d-inline-flex align-items-center bg-primary text-white top-shape px-5">
+                    <div class="me-3 pe-3 border-end py-2">                      
+                        <p class="m-0"><i class="fa fa-envelope-open me-2"></i>{{ site_info.email }}</p>
+                    </div>
+                    <div class="py-2">                       
+                        <p class="m-0"><i class="fa fa-phone-alt me-2"></i>{{ site_info.phone }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Topbar End -->
+
+
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand-sm bg-white navbar-light shadow-sm px-5 py-3 py-lg-0">
+        <a href="{% url 'home' %}" class="navbar-brand p-0">
+            <img src="{{ site_info.color_logo.url }}" alt="" style="width: 190px;">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto py-0">
+                <a href="{% url 'home' %}" class="nav-item nav-link active">Home</a>
+                <a href="about.html" class="nav-item nav-link">About</a>
+                <a href="service.html" class="nav-item nav-link">Service</a>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
+                    <div class="dropdown-menu m-0">
+                        <a href="price.html" class="dropdown-item">Pricing Plan</a>
+                        <a href="team.html" class="dropdown-item">Our Dentist</a>
+                        <a href="testimonial.html" class="dropdown-item">Testimonial</a>
+                        <a href="appointment.html" class="dropdown-item">Appointment</a>
+                    </div>
+                </div>
+                <a href="contact.html" class="nav-item nav-link">Contact</a>
+            </div>
+            
+            {% if user.is_authenticated %}
+                <!-- Dropdown with user's name for logged-in users -->
+                <a style="border-radius: 5px;" href="#" class="btn btn-primary py-2 dropdown-toggle" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                {{ user.first_name|default:user.username }}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" style="margin-left:25px;" aria-labelledby="accountDropdown">                
+                 {% comment %} <li><hr class="dropdown-divider"></li> {% endcomment %}
+                <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            {% else %}
+                <!-- Plain "Account" button for not logged-in users -->
+                <a href="{% url 'login' %}" class="btn btn-primary py-2" style="border-radius: 5px;">
+                Account
+                </a>
+            {% endif %}
+
+            
+        </div>
+    </nav>
+    <!-- Navbar End -->

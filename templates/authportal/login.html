@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Log In Page {% endblock title %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center mt-2 " style="margin-bottom: 80px;">
+    <div class="card p-4" style="width: 100%; max-width: 400px; background-color: #f8f9fa; border-radius: 10px;"> <!-- Gray background for the form -->
+        
+        <div class="text-center mb-3">
+            <img src="{{ site_info.site_logo.url }}" alt="Logo" style="width: 190px;">
+            <h4>Patient Login</h4>
+            
+    
+        </div>
+        
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li style="color:red">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        
+        <form id="login-form" action="" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="email" style="color: black;">Email</label>
+                <input type="email" id="email" name="email" class="form-control" style="background-color: #e9ecef; color: black;" required>
+            </div>
+            <div class="form-group">
+                <label for="password" style="color: black;">Password</label>
+                <div class="input-group" style="position: relative;">
+                    <input type="password" id="password" name="password" class="form-control" style="background-color: #e9ecef; color: black; font-size: 1.25em; padding-right: 45px;" required>
+                    <span class="input-group-text" onclick="togglePasswordVisibility()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+                        <i id="eye-icon" class="fas fa-eye" style="font-size: 1.25em;"></i> <!-- Eye icon with larger size -->
+                    </span>
+                </div>
+            </div>
+            <button id="login-button" class="btn btn-primary btn-block mt-2" type="submit"> <!-- Primary button color -->
+                Log in
+                <span id="spinner" class="spinner-border spinner-border-sm ml-2" role="status" aria-hidden="true" style="display:none; color: white;"></span>
+            </button>
+        </form>
+        
+        <div class="text-center mt-1">
+            <p style="color: black;">Don't have an account?</p>
+            <a href="{% url 'signup' %}" class="btn btn-warning btn-block">Sign up</a> <!-- Primary button color for signup -->
+        </div>
+
+        <br>
+        <a href="{% url 'password_reset' %}" class="btn btn-link btn-block text-center" style="color: black;">Forgot password?</a>
+    </div>
+</div>
+
+<script>
+document.getElementById('login-form').addEventListener('submit', function() {
+    document.getElementById('spinner').style.display = 'inline-block';
+    document.getElementById('login-button').disabled = true;
+});
+
+function togglePasswordVisibility() {
+    const passwordField = document.getElementById('password');
+    const eyeIcon = document.getElementById('eye-icon');
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordField.type = 'password';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+    }
+}
+</script>
+
+{% endblock content %}

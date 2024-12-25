@@ -1,0 +1,61 @@
+<div class="sb-sidenav-menu">
+    <div class="nav">
+        <!-- Core Section -->
+        <div class="sb-sidenav-menu-heading">Core</div>
+        <a class="nav-link" href="{% url 'patient_admin' %}">
+            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+            Patient Dashboard
+        </a>
+        <!-- Medical Reports -->
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#reportsCollapse" aria-expanded="false" aria-controls="reportsCollapse">
+            <div class="sb-nav-link-icon"><i class="fas fa-file-medical"></i></div>
+            Medical Reports
+            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+        </a>
+        <div class="collapse" id="reportsCollapse" aria-labelledby="headingReports" data-bs-parent="#sidenavAccordion">
+            <nav class="sb-sidenav-menu-nested nav">
+                <a class="nav-link" href="#">View Reports</a>
+                <a class="nav-link" href="#">Download Reports</a>
+            </nav>
+        </div>
+
+        <!-- Patient Section -->
+        <div class="sb-sidenav-menu-heading">Patient Management</div>
+        <a class="nav-link collapsed"  data-bs-toggle="collapse" data-bs-target="#profileCollapse" aria-expanded="false" aria-controls="profileCollapse">
+            <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
+            Profile Management
+            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+        </a>
+        <div class="collapse" id="profileCollapse" aria-labelledby="headingProfile" data-bs-parent="#sidenavAccordion">
+            <nav class="sb-sidenav-menu-nested nav">
+                <a class="nav-link" href="{% url 'manage_profile'  %}">Update Profile</a>
+                <a class="nav-link" href="{% url 'view_profile' %}">View Profile</a>         
+            </nav>
+        </div>
+
+        <!-- Authentication Section -->
+        <div class="sb-sidenav-menu-heading">Authentication</div>
+        {% if user.is_authenticated %}
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#authUserDropdown" aria-expanded="false" aria-controls="authUserDropdown">
+                <div class="sb-nav-link-icon"><i class="fas fa-user-circle"></i></div>
+                {{ user.username }}
+                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+            </a>
+            <div class="collapse" id="authUserDropdown" aria-labelledby="headingAuthUser" data-bs-parent="#sidenavAccordion">
+                <nav class="sb-sidenav-menu-nested nav">
+                    <a class="nav-link" href="{% url 'change_password' %}">Change Password</a>
+                    <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                </nav>
+            </div>
+        {% else %}
+            <a class="nav-link" href="{% url 'login' %}">
+                <div class="sb-nav-link-icon"><i class="fas fa-sign-in-alt"></i></div>
+                Login
+            </a>
+            <a class="nav-link" href="{% url 'password_reset' %}">
+                <div class="sb-nav-link-icon"><i class="fas fa-unlock-alt"></i></div>
+                Forgot Password
+            </a>
+        {% endif %}
+    </div>
+</div>
