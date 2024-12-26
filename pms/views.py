@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 def view_profile(request):
     try:
         patient_profile = PatientProfile.objects.get(user=request.user)
-        return render(request, 'admin_panel/patient/view_profile.html', {'profile': patient_profile})
+        return render(request, 'patient/patient_profile_view.html', {'profile': patient_profile})
     except PatientProfile.DoesNotExist:
         messages.info(request, "You don't have a profile. Please create one.")
         return redirect('manage_profile')
@@ -37,7 +37,7 @@ def manage_profile(request):
     else:
         form = PatientProfileForm(instance=patient_profile)
 
-    return render(request, 'admin_panel/patient/manage_profile.html', {'form': form})
+    return render(request, 'patient/manage_profile.html', {'form': form})
 
 
 # Create your views here.
@@ -56,4 +56,11 @@ def patient_admin(request):
     context = {
         'site_info': site_info,
     }
-    return render(request, 'admin_panel/admin_base.html')
+    return render(request, 'patient/patient_home.html')
+
+def hospital_admin(request):
+    site_info = SiteInfo.objects.first()  # Get the first (and only) instance
+    context = {
+        'site_info': site_info,
+    }
+    return render(request, 'hospital/hospital_home.html')

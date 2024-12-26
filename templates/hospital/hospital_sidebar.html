@@ -1,0 +1,104 @@
+<div class="sb-sidenav-menu">
+    <div class="nav">
+        <!-- Core Section -->
+        <div class="sb-sidenav-menu-heading">Core</div>
+        <a class="nav-link" href="">
+            <div class="sb-nav-link-icon"><i class="fas fa-hospital"></i></div>
+            Hospital Dashboard
+        </a>
+
+        <!-- Doctor Management -->
+        <div class="sb-sidenav-menu-heading">Doctor Management</div>
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#doctorCollapse" aria-expanded="false" aria-controls="doctorCollapse">
+            <div class="sb-nav-link-icon"><i class="fas fa-user-md"></i></div>
+            Doctors
+            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+        </a>
+        <div class="collapse" id="doctorCollapse" aria-labelledby="headingDoctor" data-bs-parent="#sidenavAccordion">
+            <nav class="sb-sidenav-menu-nested nav">
+                <a class="nav-link" href="">Add Doctor</a>
+                <a class="nav-link" href="">Manage Doctors</a>
+                <a class="nav-link" href="">Assign Patients</a>
+            </nav>
+        </div>
+
+        <!-- Medical Records Management -->
+        <div class="sb-sidenav-menu-heading">Medical Records Management</div>
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#medicalRecordCollapse" aria-expanded="false" aria-controls="medicalRecordCollapse">
+            <div class="sb-nav-link-icon"><i class="fas fa-file-medical"></i></div>
+            Medical Records
+            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+        </a>
+        <div class="collapse" id="medicalRecordCollapse" aria-labelledby="headingMedicalRecords" data-bs-parent="#sidenavAccordion">
+            <nav class="sb-sidenav-menu-nested nav">
+                <a class="nav-link" href="">Add Medical Record</a>
+                <a class="nav-link" href="">Manage Medical Records</a>
+                <a class="nav-link" href="">Patient Medical History</a>
+            </nav>
+        </div>
+
+        <!-- Employee Management -->
+        <div class="sb-sidenav-menu-heading">Employee Management</div>
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#employeeCollapse" aria-expanded="false" aria-controls="employeeCollapse">
+            <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
+            Employees
+            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+        </a>
+        <div class="collapse" id="employeeCollapse" aria-labelledby="headingEmployee" data-bs-parent="#sidenavAccordion">
+            <nav class="sb-sidenav-menu-nested nav">
+                <a class="nav-link" href="">Add Employee</a>
+                <a class="nav-link" href="">Manage Employees</a>
+                <a class="nav-link" href="">Employee Schedules</a>
+            </nav>
+        </div>
+
+        <!-- Role Management -->
+        <div class="sb-sidenav-menu-heading">Role Management</div>
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#roleCollapse" aria-expanded="false" aria-controls="roleCollapse">
+            <div class="sb-nav-link-icon"><i class="fas fa-user-cog"></i></div>
+            Roles
+            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+        </a>
+        <div class="collapse" id="roleCollapse" aria-labelledby="headingRole" data-bs-parent="#sidenavAccordion">
+            <nav class="sb-sidenav-menu-nested nav">
+                <a class="nav-link" href="">Add Role</a>
+                <a class="nav-link" href="">Manage Roles</a>
+            </nav>
+        </div>
+
+        <!-- Appointment Management -->
+        <div class="sb-sidenav-menu-heading">Appointment Management</div>
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#appointmentCollapse" aria-expanded="false" aria-controls="appointmentCollapse">
+            <div class="sb-nav-link-icon"><i class="fas fa-calendar-check"></i></div>
+            Appointments
+            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+        </a>
+        <div class="collapse" id="appointmentCollapse" aria-labelledby="headingAppointments" data-bs-parent="#sidenavAccordion">
+            <nav class="sb-sidenav-menu-nested nav">
+                <a class="nav-link" href="">Schedule Appointment</a>
+                <a class="nav-link" href="">Manage Appointments</a>
+            </nav>
+        </div>
+
+        <!-- Authentication Section -->
+        <div class="sb-sidenav-menu-heading">Authentication</div>
+        {% if user.is_authenticated %}
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#authUserDropdown" aria-expanded="false" aria-controls="authUserDropdown">
+                <div class="sb-nav-link-icon"><i class="fas fa-user-circle"></i></div>
+                {{ user.username }}
+                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+            </a>
+            <div class="collapse" id="authUserDropdown" aria-labelledby="headingAuthUser" data-bs-parent="#sidenavAccordion">
+                <nav class="sb-sidenav-menu-nested nav">
+                    <a class="nav-link" href="{% url 'change_password' %}">Change Password</a>
+                    <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                </nav>
+            </div>
+        {% else %}
+            <a class="nav-link" href="{% url 'login' %}">
+                <div class="sb-nav-link-icon"><i class="fas fa-sign-in-alt"></i></div>
+                Login
+            </a>
+        {% endif %}
+    </div>
+</div>

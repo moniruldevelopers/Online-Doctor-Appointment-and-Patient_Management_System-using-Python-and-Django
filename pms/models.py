@@ -33,9 +33,7 @@ class PatientProfile(models.Model):
     gender_choices = [('M', 'Male'), ('F', 'Female'), ('O', 'Other')]
     gender = models.CharField(max_length=1, choices=gender_choices)
     phone_number = models.CharField(
-        max_length=11, 
-        blank=True, 
-        null=True,
+        max_length=11,        
         validators=[
             RegexValidator(
                 regex=r'^01[3-9]\d{8}$',

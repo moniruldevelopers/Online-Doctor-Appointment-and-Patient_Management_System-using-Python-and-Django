@@ -102,7 +102,7 @@ def loginuser(request):
     # If the user is already logged in, check their role and redirect accordingly
     if request.user.is_authenticated:
         if request.user.is_superuser or request.user.is_staff:
-            return redirect('/admin/')  # Redirect to the admin panel
+            return redirect('/hospital_admin/')  # Redirect to the admin panel
         else:
             return redirect('patient_admin')  # Redirect to patient_admin if not superuser or staff
 
@@ -125,7 +125,7 @@ def loginuser(request):
 
                     # Check if user is superuser or staff and redirect accordingly
                     if user.is_superuser or user.is_staff:
-                        return redirect('/admin/')  # Redirect to admin panel
+                        return redirect('/hospital_admin/')  # Redirect to admin panel
                     else:
                         messages.success(request, 'Login Success')
                         return redirect('patient_admin')  # Redirect to patient admin

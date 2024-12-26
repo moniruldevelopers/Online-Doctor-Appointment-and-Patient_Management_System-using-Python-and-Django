@@ -1,0 +1,62 @@
+{% extends 'hospital/hospital_base.html' %}
+
+{% block content %}
+
+<div class="container-fluid px-4">
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Success!</strong> {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <h1 class="mt-4">Hospital Patient Management Dashboard</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Dashboard</li>
+    </ol>
+    
+    <div class="row">
+        <!-- Total Patients -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <h5>Total Patients</h5>
+                    <h2>1,250</h2>
+                </div>
+            </div>
+        </div>
+        <!-- Active Appointments -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h5>Active Appointments</h5>
+                    <h2>320</h2>
+                </div>
+            </div>
+        </div>
+        <!-- Medical Records -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <h5>Medical Records</h5>
+                    <h2>8,450</h2>
+                </div>
+            </div>
+        </div>
+        <!-- Pending Approvals -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">
+                    <h5>Pending Approvals</h5>
+                    <h2>15</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

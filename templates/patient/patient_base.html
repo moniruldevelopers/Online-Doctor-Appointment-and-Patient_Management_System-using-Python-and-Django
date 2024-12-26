@@ -18,11 +18,24 @@
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     </head>
     <body class="sb-nav-fixed">
-       {% include 'admin_panel/admin_navbar.html' %}
+        <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+            <!-- Navbar Brand-->
+            <a class="navbar-brand ps-3" href="{% url 'patient_admin' %}"><img src="{{ site_info.white_logo.url }}" alt="" style="width: 190px;"></a>
+            
+            <!-- Sidebar Toggle-->
+            <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+            
+            <!-- Spacer -->
+            <div class="ms-auto"></div>
+            
+            <!-- Navbar-->
+          
+        </nav>
+        
         <div id="layoutSidenav">
             <div id="layoutSidenav_nav">
                 <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
-                  {% include 'admin_panel/patient_sidebar.html' %}  
+                  {% include 'patient/patient_sidebar.html' %}  
                   
                 </nav>
             </div>
@@ -30,15 +43,27 @@
                 <main>
                     
                     {% block content %}
-                        {% include 'admin_panel/patient/patient_dashboard.html' %}
+                        {% include 'patient/patient_home.html' %}
                     {% endblock content %}
                         
                 </main>
                
-                {% include 'admin_panel/footer.html' %}
+                <footer class="py-4 bg-light mt-auto">
+                    <div class="container-fluid px-4">
+                        <div class="d-flex align-items-center justify-content-between small">
+                            <div class="text-muted">Copyright &copy; {{ site_info.site_name }}</div>
+                            <div>
+                                <a href="#">Privacy Policy</a>
+                                &middot;
+                                <a href="#">Design By &amp; UGV CSE</a>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
 
             </div>
         </div>
+       
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="{% static 'admin_panel/js/scripts.js' %}"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>

@@ -10,4 +10,8 @@ urlpatterns = [
     path('view_profile/', view_profile, name='view_profile'),
     path('manage_profile/',manage_profile, name='manage_profile'),
 
+    #hospital
+    path('hospital_admin/', hospital_admin, name='hospital_admin'),
+
+
 ]
