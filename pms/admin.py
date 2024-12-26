@@ -35,3 +35,5 @@ admin.site.register(SiteInfo, SiteInfoAdmin)
 
 # patient profile
 admin.site.register(PatientProfile)
+admin.site.register(Department)
+admin.site.register(DoctorProfile)

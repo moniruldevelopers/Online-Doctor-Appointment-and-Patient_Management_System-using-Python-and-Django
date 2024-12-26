@@ -6,6 +6,42 @@ import uuid
 
 
 
+# doctor profile 
+class Department(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class DoctorProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='doctor_profile')
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, related_name='doctors')
+    full_name = models.CharField(max_length=100)  # Full name field
+    specialization = models.CharField(max_length=100, blank=True, null=True)
+    phone_number = models.CharField(
+        max_length=11,        
+        validators=[
+            RegexValidator(
+                regex=r'^01[3-9]\d{8}$',
+                message="Enter a valid Bangladesh phone number (e.g., 01712345678).",
+                code='invalid_phone'
+            )
+        ]
+    ) 
+    image = models.ImageField(upload_to='doctor_profile_image')  
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.full_name} - {self.department.name if self.department else 'No Department'}"
+
+
+
+
+
+
+# patient profile
 class PatientIDTracker(models.Model):
     last_patient_id = models.BigIntegerField(default=1000000000)  # Start with 1000000000
 

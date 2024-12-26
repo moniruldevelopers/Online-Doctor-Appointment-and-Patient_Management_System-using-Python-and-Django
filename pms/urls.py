@@ -12,6 +12,10 @@ urlpatterns = [
 
     #hospital
     path('hospital_admin/', hospital_admin, name='hospital_admin'),
+    path('manage-doctor-profile/', manage_doctor_profile, name='manage_doctors'),
+    path('doctors/', view_all_doctors, name='view_all_doctors'),  
+    path('doctor/update/<int:pk>/', update_doctor_profile, name='update_doctor_profile'),
+    path('doctor/delete/<int:pk>/', delete_doctor_profile, name='delete_doctor_profile'),
 
 
 ]

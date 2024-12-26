@@ -22,3 +22,32 @@ class PatientProfileForm(forms.ModelForm):
             field.widget.attrs.update({'class': 'form-control'})
             if self.errors.get(field_name):
                 field.widget.attrs.update({'class': 'form-control is-invalid'})
+
+
+
+class DoctorProfileForm(forms.ModelForm):
+    class Meta:
+        model = DoctorProfile
+        fields = ['user', 'department', 'full_name', 'image', 'specialization', 'phone_number', 'is_active']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Filter user queryset to show only superusers or staff users
+        self.fields['user'].queryset = User.objects.filter(is_superuser=True) | User.objects.filter(is_staff=True)
+
+        # Exclude users who already have a DoctorProfile
+        existing_users = DoctorProfile.objects.values_list('user', flat=True)
+        self.fields['user'].queryset = self.fields['user'].queryset.exclude(id__in=existing_users)
+
+
+class DoctorProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = DoctorProfile
+        fields = ['user', 'department', 'full_name', 'specialization', 'phone_number', 'is_active', 'image']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Disable the 'user' field, but don't render the 'username' field in the template
+        if self.instance and self.instance.user:
+            self.fields['user'].disabled = True
