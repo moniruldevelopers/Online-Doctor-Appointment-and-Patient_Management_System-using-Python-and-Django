@@ -16,6 +16,9 @@ from django.http import JsonResponse
 from .forms import GroupForm
 from authportal.forms import *
 from datetime import date
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.template.loader import render_to_string
 
 
 # website view section
@@ -30,14 +33,14 @@ def home(request):
 
 
 
-#patient section
+#patient section for patient
 def view_profile(request):
     try:
         patient_profile = PatientProfile.objects.get(user=request.user)
         return render(request, 'patient/patient_profile_view.html', {'profile': patient_profile})
     except PatientProfile.DoesNotExist:
         messages.info(request, "You don't have a profile. Please create one.")
-        return redirect('manage_profile')
+        return redirect('all_patients')
 
 
 
@@ -330,31 +333,75 @@ def user_to_patient_profile(request, user_id):
 
     return render(request, 'patient/user_to_patient_update_profile.html', {'form': form, 'user': user})
 
-
 def all_patients(request):
+    search_query = request.GET.get('search', '')  # Get search query from URL
     patients = PatientProfile.objects.all()
+
+    # Apply filtering based on search query (search by Patient ID or Phone Number)
+    if search_query:
+        patients = patients.filter(
+            patient_id__icontains=search_query
+        ) | patients.filter(
+            phone_number__icontains=search_query
+        )
+
+    # Calculate age for each patient
     for patient in patients:
         if patient.date_of_birth:
             today = date.today()
-            patient.age = today.year - patient.date_of_birth.year - (
-                (today.month, today.day) < (patient.date_of_birth.month, patient.date_of_birth.day)
-            )
+            delta_years = today.year - patient.date_of_birth.year
+            delta_months = today.month - patient.date_of_birth.month
+            delta_days = today.day - patient.date_of_birth.day
+
+            # If the patient is less than 1 year old
+            if delta_years == 0:
+                if delta_months == 0:  # Less than a month old
+                    patient.age = f"{delta_days} day(s)"
+                else:  # Less than a year old
+                    patient.age = f"{delta_months} month(s)"
+            else:
+                # More than a year old
+                if delta_months < 0:
+                    delta_years -= 1
+                    delta_months += 12
+                if delta_days < 0:
+                    delta_months -= 1
+                    delta_days += 30  # Approximation
+
+                patient.age = f"{delta_years} year(s), {delta_months} month(s), {delta_days} day(s)"
         else:
             patient.age = "N/A"
-    return render(request, 'patient/all_patients.html', {'patients': patients})
+
+    # Pagination
+    paginator = Paginator(patients, 10)  # Show 10 patients per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'patient/all_patients.html', {'page_obj': page_obj, 'search_query': search_query})
+
+
+
+
+
+
+
 
 
 def update_patient_profile(request, patient_id):
-    patient = get_object_or_404(PatientProfile, patient_id=patient_id)
-    if request.method == "POST":
+    patient = get_object_or_404(PatientProfile, id=patient_id)
+    
+    if request.method == 'POST':
         form = PatientProfileForm(request.POST, request.FILES, instance=patient)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Patient profile updated successfully!')
-            return redirect('all_patients')
+            return redirect('all_patients')  # Redirect to the list of patients after successful update
     else:
         form = PatientProfileForm(instance=patient)
-    return render(request, 'patient/update_single_patient.html', {'form': form})
+
+    return render(request, 'patient/update_single_patient.html', {'form': form, 'patient': patient})
+
+
+
 
 
 def delete_patient(request, pk):
@@ -364,3 +411,44 @@ def delete_patient(request, pk):
         patient.delete()
         messages.success(request, 'Patient profile deleted successfully!')
         return redirect('all_patients')
+    
+
+def view_patient_profile(request, patient_id):
+    # Retrieve the patient profile using the patient_id
+    patient = get_object_or_404(PatientProfile, patient_id=patient_id)
+    
+    # Calculate age for the patient
+    if patient.date_of_birth:
+        today = date.today()
+        delta_years = today.year - patient.date_of_birth.year
+        delta_months = today.month - patient.date_of_birth.month
+        delta_days = today.day - patient.date_of_birth.day
+
+        # If the patient is less than 1 year old
+        if delta_years == 0:
+            if delta_months == 0:  # Less than a month old
+                patient.age = f"{delta_days} day(s)"
+            else:  # Less than a year old
+                patient.age = f"{delta_months} month(s)"
+        else:
+            # More than a year old
+            if delta_months < 0:
+                delta_years -= 1
+                delta_months += 12
+            if delta_days < 0:
+                delta_months -= 1
+                delta_days += 30  # Approximation for days
+
+            patient.age = f"{delta_years} year(s), {delta_months} month(s), {delta_days} day(s)"
+    else:
+        patient.age = "N/A"
+
+    # Fetch the site info for hospital branding
+    site_info = SiteInfo.objects.first()  # Get the first (and only) instance of SiteInfo
+    
+    context = {
+        'patient': patient,
+        'site_info': site_info,
+    }
+
+    return render(request, 'patient/view_patient_profile.html', context)

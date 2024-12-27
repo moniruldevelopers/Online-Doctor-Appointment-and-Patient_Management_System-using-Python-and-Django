@@ -6,6 +6,29 @@ import uuid
 
 
 
+class SiteInfo(models.Model):
+    site_name = models.CharField(max_length=20)
+    color_logo = models.ImageField(upload_to='logo/')
+    white_logo = models.ImageField(upload_to='logo/')
+    email = models.EmailField()
+    phone = models.CharField(max_length=14)
+    address = models.CharField(max_length=100)
+    site_facebook = models.URLField(max_length=100)
+    site_x = models.URLField(max_length=100)
+    site_instagram = models.URLField(max_length=100)
+    site_pinterest = models.URLField(max_length=100)
+
+    def __str__(self):
+        return self.site_name
+
+    def clean(self):
+        if SiteInfo.objects.exists() and not self.pk:
+            raise ValidationError("Only one SiteInfo instance is allowed.")
+
+    def save(self, *args, **kwargs):
+        self.clean()  # Call clean method before saving
+        super().save(*args, **kwargs)
+
 
 # doctor profile 
 class Department(models.Model):
@@ -120,27 +143,3 @@ class PatientProfile(models.Model):
 
 
 
-
-
-class SiteInfo(models.Model):
-    site_name = models.CharField(max_length=20)
-    color_logo = models.ImageField(upload_to='logo/')
-    white_logo = models.ImageField(upload_to='logo/')
-    email = models.EmailField()
-    phone = models.CharField(max_length=14)
-    address = models.CharField(max_length=100)
-    site_facebook = models.URLField(max_length=100)
-    site_x = models.URLField(max_length=100)
-    site_instagram = models.URLField(max_length=100)
-    site_pinterest = models.URLField(max_length=100)
-
-    def __str__(self):
-        return self.site_name
-
-    def clean(self):
-        if SiteInfo.objects.exists() and not self.pk:
-            raise ValidationError("Only one SiteInfo instance is allowed.")
-
-    def save(self, *args, **kwargs):
-        self.clean()  # Call clean method before saving
-        super().save(*args, **kwargs)

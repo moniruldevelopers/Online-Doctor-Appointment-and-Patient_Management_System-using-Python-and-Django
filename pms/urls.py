@@ -9,7 +9,9 @@ urlpatterns = [
     path("admin_patient_register/", admin_patient_register, name="admin_patient_register"),
     path('patient/<int:user_id>/update-profile/', user_to_patient_profile, name='user_to_patient_profile'),
     path('all_patients/', all_patients, name='all_patients'),
-    path('patients/<int:patient_id>/update/', update_patient_profile, name='update_patient'),
+    path('patients/<int:patient_id>/view/', view_patient_profile, name='view_patient_profile'),
+   
+    path('patients/<int:patient_id>/update/', update_patient_profile, name='update_patient_profile'),
     path('patients/<int:pk>/delete/', delete_patient, name='delete_patient'),
     path('patient_admin/', patient_admin, name='patient_admin'),
     path('view_profile/', view_profile, name='view_profile'),

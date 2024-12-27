@@ -1,0 +1,180 @@
+{% extends 'hospital/hospital_base.html' %}
+
+{% block content %}
+    <div class="container  ">
+        <!-- View heading text -->
+        <div class="view_heading text-center">
+            <img src="{{ site_info.color_logo.url }}" alt="Hospital Logo">
+            <h6>
+                <span><i class="fa-solid fa-phone"></i> {{ site_info.phone }}</span>
+                <span><i class="fa-solid fa-envelope"></i> {{ site_info.email }}</span>
+            </h6>
+            <div>
+                <span>Address: {{ site_info.address }}</span>
+            </div>
+        </div>
+        <hr>
+
+        <h1 class="text-center">Patient Details</h1>
+        
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th>Patient ID</th>
+                        <td>{{ patient.patient_id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Full Name</th>
+                        <td>{{ patient.full_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date of Birth</th>
+                        <td>{{ patient.date_of_birth }}</td>
+                    </tr>
+                    <tr>
+                        <th>Gender</th>
+                        <td>{{ patient.get_gender_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Phone Number</th>
+                        <td>{{ patient.phone_number }}</td>
+                    </tr>
+                    <tr>
+                        <th>Age</th>
+                        <td>{{ patient.age }}</td>
+                    </tr>
+                    <tr>
+                        <th>Blood Type</th>
+                        <td>{{ patient.get_blood_type_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Present Address</th>
+                        <td>{{ patient.present_address }}</td>
+                    </tr>
+                    <tr>
+                        <th>Permanent Address</th>
+                        <td>{{ patient.permanent_address }}</td>
+                    </tr>
+                    <tr>
+                        <th>City</th>
+                        <td>{{ patient.city }}</td>
+                    </tr>
+
+                    {% if patient.emergency_contact_name %}
+                    <tr>
+                        <th>Emergency Contact Name</th>
+                        <td>{{ patient.emergency_contact_name }}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if patient.emergency_contact_relationship %}
+                    <tr>
+                        <th>Emergency Contact Relationship</th>
+                        <td>{{ patient.emergency_contact_relationship }}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if patient.emergency_contact_phone %}
+                    <tr>
+                        <th>Emergency Contact Phone</th>
+                        <td>{{ patient.emergency_contact_phone }}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if patient.allergies %}
+                    <tr>
+                        <th>Allergies</th>
+                        <td>{{ patient.allergies }}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if patient.HIV_positive %}
+                    <tr>
+                        <th>HIV Positive</th>
+                        <td>{{ patient.HIV_positive }}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if patient.thalassemia %}
+                    <tr>
+                        <th>Thalassemia</th>
+                        <td>{{ patient.thalassemia }}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if patient.diabetes %}
+                    <tr>
+                        <th>Diabetes</th>
+                        <td>{{ patient.diabetes }}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if patient.hypertension %}
+                    <tr>
+                        <th>Hypertension</th>
+                        <td>{{ patient.hypertension }}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if patient.notes %}
+                    <tr>
+                        <th>Notes</th>
+                        <td>{{ patient.notes }}</td>
+                    </tr>
+                    {% endif %}
+
+                    <tr>
+                        <th>Created At</th>
+                        <td>{{ patient.created_at }}</td>
+                    </tr>
+                    <tr>
+                        <th>Updated At</th>
+                        <td>{{ patient.updated_at }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div class="text-center mt-4">
+        <!-- Print Button -->
+        <button onclick="window.print()" class="btn btn-success">
+            <i class="fas fa-print"></i> Print Profile
+        </button>
+    </div>
+
+    <style>
+        /* Custom styles for printing */
+        @media print {
+            /* Hide print button on print page */
+            .btn {
+                display: none;
+            }
+          .body{
+            margin-top: 0px;
+            padding-top: 0px;
+          }
+
+            .table th, .table td {
+                vertical-align: middle;
+                text-align: left;
+                font-size: 14px; /* Reduced font size for printing */
+                padding: 5px; /* Reduced row height */
+            }
+
+            .table th {
+                width: 30%;
+            }
+
+            .table td {
+                width: 70%;
+            }
+
+            .text-center {
+                text-align: center !important;
+            }
+        }
+    </style>
+{% endblock %}
