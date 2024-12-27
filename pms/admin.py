@@ -5,8 +5,6 @@ from django.utils.html import format_html
 
 from .models import *
 
-
-
 # Register your models here.
 from django.utils.html import mark_safe
 
@@ -14,6 +12,8 @@ from django.utils.html import mark_safe
 admin.site.site_header = "Patient Management ADMIN PANEL"
 admin.site.site_title = "Patient Management ADMIN PANEL"
 admin.site.index_title = "Welcome to Patient Management PORTAL"
+
+
 class SiteInfoAdminForm(ModelForm):
     class Meta:
         model = SiteInfo

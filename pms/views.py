@@ -14,11 +14,23 @@ from django.contrib.auth.models import Group, User,Permission
 from django.db.models import Q
 from django.http import JsonResponse
 from .forms import GroupForm
+from authportal.forms import *
+from datetime import date
+
+
+# website view section
+def home(request):
+    site_info = SiteInfo.objects.first()  # Get the first (and only) instance
+    context = {
+        'site_info': site_info,
+    }
+    return render (request, 'home.html', context)
 
 
 
 
 
+#patient section
 def view_profile(request):
     try:
         patient_profile = PatientProfile.objects.get(user=request.user)
@@ -26,37 +38,6 @@ def view_profile(request):
     except PatientProfile.DoesNotExist:
         messages.info(request, "You don't have a profile. Please create one.")
         return redirect('manage_profile')
-
-@login_required
-def manage_profile(request):
-    try:
-        patient_profile = PatientProfile.objects.get(user=request.user)
-    except PatientProfile.DoesNotExist:
-        patient_profile = None
-
-    if request.method == 'POST':
-        form = PatientProfileForm(request.POST, instance=patient_profile)
-        if form.is_valid():
-            profile = form.save(commit=False)
-            profile.user = request.user
-            profile.save()
-            messages.success(request, 'Your profile has been updated successfully.')
-            return redirect('view_profile')
-        else:
-            messages.error(request, 'Please correct the errors below.')
-    else:
-        form = PatientProfileForm(instance=patient_profile)
-
-    return render(request, 'patient/manage_profile.html', {'form': form})
-
-
-# Create your views here.
-def home(request):
-    site_info = SiteInfo.objects.first()  # Get the first (and only) instance
-    context = {
-        'site_info': site_info,
-    }
-    return render (request, 'home.html', context)
 
 
 
@@ -68,97 +49,17 @@ def patient_admin(request):
     }
     return render(request, 'patient/patient_home.html')
 
+
+
+
+
+#hospital section
 def hospital_admin(request):
     site_info = SiteInfo.objects.first()  # Get the first (and only) instance
     context = {
         'site_info': site_info,
     }
     return render(request, 'hospital/hospital_home.html')
-
-
-
-#doctor profile # Check function to allow only superusers or staff users
-def is_superuser_or_staff(user):
-    return user.is_superuser or user.is_staff
-
-@user_passes_test(is_superuser_or_staff, login_url='login')  # Redirect unauthorized users to login
-def manage_doctor_profile(request, pk=None):
-    if pk:
-        doctor_profile = get_object_or_404(DoctorProfile, pk=pk)
-    else:
-        doctor_profile = None
-
-    if request.method == 'POST':
-        form = DoctorProfileForm(request.POST,request.FILES, instance=doctor_profile)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Doctor profile saved successfully!")
-            return redirect('view_all_doctors')
-        else:
-            messages.error(request, "Error saving doctor profile. Please check the form.")
-    else:
-        form = DoctorProfileForm(instance=doctor_profile)
-
-    context = {
-        'form': form,
-        'doctor_profile': doctor_profile,
-    }
-    return render(request, 'hospital/manage_doctor_profile.html', context)
-
-
-def view_all_doctors(request):
-    # Get all doctor profiles
-    doctors = DoctorProfile.objects.all()
-
-    # Render the list of doctors to the template
-    context = {
-        'doctors': doctors,
-    }
-    return render(request, 'hospital/view_all_doctors.html', context)
-
-
-def update_doctor_profile(request, pk):
-    doctor_profile = get_object_or_404(DoctorProfile, pk=pk)
-
-    # Handle the form submission
-    if request.method == 'POST':
-        form = DoctorProfileUpdateForm(request.POST, request.FILES, instance=doctor_profile)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Doctor profile updated successfully!")
-            return redirect('view_all_doctors')  # Redirect to the list of doctors
-        else:
-            messages.error(request, "Error updating doctor profile. Please check the form.")
-    else:
-        form = DoctorProfileUpdateForm(instance=doctor_profile)
-
-    context = {
-        'form': form,
-        'doctor_profile': doctor_profile,
-    }
-    return render(request, 'hospital/updateprofile.html', context)
-
-def delete_doctor_profile(request, pk):
-    doctor_profile = get_object_or_404(DoctorProfile, pk=pk)
-    
-    if request.method == 'POST':
-        doctor_profile.delete()
-        messages.success(request, "Doctor profile deleted successfully!")
-        return redirect('view_all_doctors')
-
-    return redirect('view_all_doctors')  # If the request is not POST, simply redirect
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -297,3 +198,169 @@ def show_staff_superusers(request):
     return render(request, 'hospital/role_management/show_staff_superusers.html', {
         'staff_and_superusers': staff_and_superusers
     })
+
+
+
+#doctor section =================================================================================
+
+def admin_doctor_register(request):
+    if request.method == "POST":
+        form = CustomSignUpForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data.get('email').lower()
+
+            # Check if the email domain is valid and if it ends with '@gmail.com'
+            if User.objects.filter(email=email).exists():
+                messages.error(request, 'An account with this email already exists.')
+                return redirect('admin_doctor_register')  # Change from 'signup'
+
+            if not email.endswith('@gmail.com'):
+                messages.error(request, 'Please use a valid @gmail.com email address.')
+                return redirect('admin_doctor_register')  # Change from 'signup'
+
+            user = form.save(commit=False)
+            user.is_active = True  # Automatically activate the user
+            user.save()
+
+            # Create a DoctorProfile instance for the new user
+            DoctorProfile.objects.create(user=user)
+
+            # Redirect to manage doctor profile for the new user
+            messages.success(request, 'Account created successfully! Please complete the doctor profile.')
+            return redirect('user_to_doctor_profile', user_id=user.id)
+    else:
+        form = CustomSignUpForm()
+
+    return render(request, 'hospital/auth/signup.html', {'form': form})
+
+
+#user to doctorprofile update function
+def user_to_doctor_profile(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    doctor_profile = get_object_or_404(DoctorProfile, user=user)
+
+    if request.method == "POST":
+        form = DoctorProfileForm(request.POST, request.FILES, instance=doctor_profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('all_doctors')  # Adjust this to redirect to the doctor's dashboard or profile view
+    else:
+        form = DoctorProfileForm(instance=doctor_profile)
+
+    return render(request, 'hospital/doctor_profile/user_to_doctor_update_profile.html', {'form': form})
+
+
+
+def all_doctors(request):
+    # Only include doctors with a user and a non-empty full_name
+    doctors = DoctorProfile.objects.filter(user__isnull=False).exclude(full_name__isnull=True).exclude(full_name__exact='')
+    return render(request, 'hospital/doctor_profile/all_doctors.html', {'doctors': doctors})
+
+
+def update_signle_doctor(request, doctor_id):
+    doctor = get_object_or_404(DoctorProfile, id=doctor_id)  # Fetch doctor by ID
+    if request.method == 'POST':
+        form = DoctorProfileForm(request.POST, request.FILES, instance=doctor)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Doctor profile updated successfully!")
+            return redirect('all_doctors')  # Redirect to the all doctors page
+    else:
+        form = DoctorProfileForm(instance=doctor)
+
+    return render(request, 'hospital/doctor_profile/update_single_doctor.html', {'form': form, 'doctor': doctor})
+def delete_doctor(request, doctor_id):
+    doctor = get_object_or_404(DoctorProfile, id=doctor_id)
+    if request.method == 'POST':
+        doctor.delete()
+        return redirect('all_doctors')  # Replace with your "all doctors" URL name
+
+
+
+
+
+#patient section =================================================================================
+
+def admin_patient_register(request):
+    if request.method == "POST":
+        form = CustomSignUpForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data.get('email').lower()
+
+            # Check if the email domain is valid and if it ends with '@gmail.com'
+            if User.objects.filter(email=email).exists():
+                messages.error(request, 'An account with this email already exists.')
+                return redirect('admin_patient_register')
+
+            if not email.endswith('@gmail.com'):
+                messages.error(request, 'Please use a valid @gmail.com email address.')
+                return redirect('admin_patient_register')
+
+            # Save the user and activate
+            user = form.save(commit=False)
+            user.is_active = True
+            user.save()
+
+            # Redirect to the patient profile update page
+            messages.success(request, 'Account created successfully! Please complete the patient profile.')
+            return redirect('user_to_patient_profile', user_id=user.id)
+    else:
+        form = CustomSignUpForm()
+
+    return render(request, 'hospital/auth/signup.html', {'form': form})
+
+#user to doctorprofile update function
+def user_to_patient_profile(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    # Access the PatientProfile via the related_name
+    patient_profile = getattr(user, 'patient_profile', None)
+
+    if request.method == "POST":
+        form = PatientProfileForm(request.POST, request.FILES, instance=patient_profile)
+        if form.is_valid():
+            # Ensure the user is linked to the profile
+            form.instance.user = user
+            form.save()
+            messages.success(request, 'Patient profile updated successfully!')
+            return redirect('all_patients')  # Replace with your desired redirect URL
+    else:
+        form = PatientProfileForm(instance=patient_profile)
+
+    return render(request, 'patient/user_to_patient_update_profile.html', {'form': form, 'user': user})
+
+
+def all_patients(request):
+    patients = PatientProfile.objects.all()
+    for patient in patients:
+        if patient.date_of_birth:
+            today = date.today()
+            patient.age = today.year - patient.date_of_birth.year - (
+                (today.month, today.day) < (patient.date_of_birth.month, patient.date_of_birth.day)
+            )
+        else:
+            patient.age = "N/A"
+    return render(request, 'patient/all_patients.html', {'patients': patients})
+
+
+def update_patient_profile(request, patient_id):
+    patient = get_object_or_404(PatientProfile, patient_id=patient_id)
+    if request.method == "POST":
+        form = PatientProfileForm(request.POST, request.FILES, instance=patient)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Patient profile updated successfully!')
+            return redirect('all_patients')
+    else:
+        form = PatientProfileForm(instance=patient)
+    return render(request, 'patient/update_single_patient.html', {'form': form})
+
+
+def delete_patient(request, pk):
+    patient = get_object_or_404(PatientProfile, pk=pk)
+    if request.method == "POST":
+        patient.user.delete()  # Deletes the associated user as well
+        patient.delete()
+        messages.success(request, 'Patient profile deleted successfully!')
+        return redirect('all_patients')

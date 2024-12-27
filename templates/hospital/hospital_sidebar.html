@@ -54,9 +54,9 @@
     </a>
     <div class="collapse" id="patientCollapse" aria-labelledby="headingPatient" data-bs-parent="#sidenavAccordion">
         <nav class="sb-sidenav-menu-nested nav">
-            <a class="nav-link" href="">Add Patient</a>
-            <a class="nav-link" href="">Manage Patients</a>
-            <a class="nav-link" href="">Patient Admissions</a>
+            <a class="nav-link" href="{% url 'admin_patient_register' %}">Create Patient Profile</a>
+        
+            <a class="nav-link" href="{% url 'all_patients' %}">All Patients Profile</a>
             <a class="nav-link" href="">Discharge Patients</a>
         </nav>
     </div>
@@ -71,8 +71,8 @@
         </a>
         <div class="collapse" id="doctorCollapse" aria-labelledby="headingDoctor" data-bs-parent="#sidenavAccordion">
             <nav class="sb-sidenav-menu-nested nav">
-                <a class="nav-link" href="{% url 'manage_doctors' %}">Add Doctor</a>
-                <a class="nav-link" href="{% url 'view_all_doctors' %}">View All Doctors</a>                
+                <a class="nav-link" href="{% url 'admin_doctor_register' %}">Create Doctor Profile</a>
+                <a class="nav-link" href="{% url 'all_doctors' %}">View All Doctors</a>                
             </nav>
         </div>
         
@@ -120,7 +120,7 @@
             </a>
             <div class="collapse" id="authUserDropdown" aria-labelledby="headingAuthUser" data-bs-parent="#sidenavAccordion">
                 <nav class="sb-sidenav-menu-nested nav">
-                    <a class="nav-link" href="{% url 'change_password' %}">Change Password</a>
+                    <a class="nav-link" href="{% url 'admin_change_password' %}">Change Password</a>
                     <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                 </nav>
             </div>

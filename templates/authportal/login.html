@@ -42,10 +42,10 @@
             </button>
         </form>
         
-        <div class="text-center mt-1">
+        {% comment %} <div class="text-center mt-1">
             <p style="color: black;">Don't have an account?</p>
             <a href="{% url 'signup' %}" class="btn btn-warning btn-block">Sign up</a> <!-- Primary button color for signup -->
-        </div>
+        </div> {% endcomment %}
 
         <br>
         <a href="{% url 'password_reset' %}" class="btn btn-link btn-block text-center" style="color: black;">Forgot password?</a>

@@ -6,17 +6,26 @@ from .views import *
 urlpatterns = [   
     path('',home,name='home'),
     # patient section 
-
+    path("admin_patient_register/", admin_patient_register, name="admin_patient_register"),
+    path('patient/<int:user_id>/update-profile/', user_to_patient_profile, name='user_to_patient_profile'),
+    path('all_patients/', all_patients, name='all_patients'),
+    path('patients/<int:patient_id>/update/', update_patient_profile, name='update_patient'),
+    path('patients/<int:pk>/delete/', delete_patient, name='delete_patient'),
     path('patient_admin/', patient_admin, name='patient_admin'),
     path('view_profile/', view_profile, name='view_profile'),
-    path('manage_profile/',manage_profile, name='manage_profile'),
 
     #hospital
     path('hospital_admin/', hospital_admin, name='hospital_admin'),
-    path('manage-doctor-profile/', manage_doctor_profile, name='manage_doctors'),
-    path('doctors/', view_all_doctors, name='view_all_doctors'),  
-    path('doctor/update/<int:pk>/', update_doctor_profile, name='update_doctor_profile'),
-    path('doctor/delete/<int:pk>/', delete_doctor_profile, name='delete_doctor_profile'),
+    
+
+    # doctor
+    path('admin_doctor_register/',admin_doctor_register, name='admin_doctor_register'),
+    path('doctor/<int:user_id>/update-profile/', user_to_doctor_profile, name='user_to_doctor_profile'),
+    path('doctors/all/', all_doctors, name='all_doctors'),  # Add this path
+    path('doctors/<int:doctor_id>/', update_signle_doctor, name='update_doctor'),
+    path('doctors/<int:doctor_id>/delete/', delete_doctor, name='delete_doctor'),
+
+
 
     #role management
     path('roles/',manage_roles, name='manage_roles'),

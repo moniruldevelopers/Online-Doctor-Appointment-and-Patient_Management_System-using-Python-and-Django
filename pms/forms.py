@@ -2,6 +2,12 @@ from .models import User
 from django.contrib.auth.models import User
 from .models import *
 from django import forms
+from django.contrib.auth.models import Group
+
+class GroupForm(forms.ModelForm):
+    class Meta:
+        model = Group
+        fields = ['name']
 
 class PatientProfileForm(forms.ModelForm):
     class Meta:
@@ -24,39 +30,14 @@ class PatientProfileForm(forms.ModelForm):
                 field.widget.attrs.update({'class': 'form-control is-invalid'})
 
 
-
 class DoctorProfileForm(forms.ModelForm):
     class Meta:
         model = DoctorProfile
-        fields = ['user', 'department', 'full_name', 'image', 'specialization', 'phone_number', 'is_active']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        # Filter user queryset to show only superusers or staff users
-        self.fields['user'].queryset = User.objects.filter(is_superuser=True) | User.objects.filter(is_staff=True)
-
-        # Exclude users who already have a DoctorProfile
-        existing_users = DoctorProfile.objects.values_list('user', flat=True)
-        self.fields['user'].queryset = self.fields['user'].queryset.exclude(id__in=existing_users)
-
-
-class DoctorProfileUpdateForm(forms.ModelForm):
-    class Meta:
-        model = DoctorProfile
-        fields = ['user', 'department', 'full_name', 'specialization', 'phone_number', 'is_active', 'image']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Disable the 'user' field, but don't render the 'username' field in the template
-        if self.instance and self.instance.user:
-            self.fields['user'].disabled = True
-
-
-
-from django.contrib.auth.models import Group
-
-class GroupForm(forms.ModelForm):
-    class Meta:
-        model = Group
-        fields = ['name']
+        fields = ['department', 'full_name', 'specialization', 'phone_number', 'image']
+        widgets = {
+            'department': forms.Select(attrs={'class': 'form-control'}),
+            'full_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'specialization': forms.TextInput(attrs={'class': 'form-control'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+        }

@@ -173,9 +173,24 @@ def change_password(request):
         form = PasswordChangeForm(user=request.user) 
     return render(request, 'authportal/change_password.html', {'form':form}) 
 
+def admin_change_password(request):
+    if request.method == "POST":
+        form = PasswordChangeForm(data=request.POST, user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Password Change Success')
+            return redirect('login')  
+    else:
+        form = PasswordChangeForm(user=request.user) 
+    return render(request, 'hospital/change_password.html', {'form':form}) 
+
 
 def confirm_email(request):
     return render(request,'authportal/confirm_email_sent.html')
+
+
+
+
 
 
 

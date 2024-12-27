@@ -17,10 +17,11 @@ urlpatterns = [
    
     path('login/',loginuser, name='login'),
     path('logout/',logoutuser, name='logout'),
-    path('signup/',register, name='signup'),
+    # path('signup/',register, name='signup'),
 
     path('confirm_email/',confirm_email, name='confirm_email'),
     path('change_password/',change_password, name='change_password'),
+    path('admin_change_password/',admin_change_password, name='admin_change_password'),
     path('activate/<uidb64>/<token>/', activate, name='activate'),
 
 
