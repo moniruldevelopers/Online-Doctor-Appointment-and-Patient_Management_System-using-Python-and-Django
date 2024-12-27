@@ -6,6 +6,7 @@ import uuid
 
 
 
+
 # doctor profile 
 class Department(models.Model):
     name = models.CharField(max_length=100, unique=True)

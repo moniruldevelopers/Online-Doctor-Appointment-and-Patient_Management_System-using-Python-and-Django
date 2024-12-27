@@ -1,0 +1,83 @@
+{% extends 'hospital/hospital_base.html' %}
+{% block content %}
+<div class="container mt-4">
+        <!-- Page Header -->
+        {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Success!</strong> {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-4">
+                <h2 class="text-center mb-4">Assign Group to User</h2>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="username">Username / Email</label>
+                        <input type="text" class="form-control" id="username" name="username" required autocomplete="off">
+                        <ul id="username-suggestions" class="list-group mt-2" style="display:none;"></ul>
+                    </div>
+                    <div class="form-group">
+                        <label for="group_id">Select Group</label>
+                        <select class="form-control" id="group_id" name="group_id" required>
+                            {% for group in groups %}
+                            <option value="{{ group.id }}">{{ group.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><input type="checkbox" name="staff"> Staff</label><br>
+                        <label><input type="checkbox" name="superuser"> Superuser</label><br>
+                    </div>
+                    <div class="form-group text-center mt-3">
+                        <button type="submit" class="btn btn-primary w-100">Assign Group to User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // When typing in the username/email field
+    $('#username').on('input', function() {
+        var query = $(this).val();
+        if (query.length > 0) {
+            $.ajax({
+                url: "{% url 'get_username_suggestions' %}",
+                data: {
+                    'q': query
+                },
+                success: function(data) {
+                    $('#username-suggestions').empty().show();
+                    if (data.suggestions.length > 0) {
+                        data.suggestions.forEach(function(suggestion) {
+                            $('#username-suggestions').append('<li class="list-group-item">' + suggestion + '</li>');
+                        });
+                    } else {
+                        $('#username-suggestions').append('<li class="list-group-item">No matches found</li>');
+                    }
+                }
+            });
+        } else {
+            $('#username-suggestions').empty().hide();
+        }
+    });
+
+    // Fill input field with selected suggestion
+    $(document).on('click', '#username-suggestions li', function() {
+        $('#username').val($(this).text().split(' (')[0]); // Set username
+        $('#username-suggestions').empty().hide();
+    });
+});
+</script>
+
+{% endblock %}

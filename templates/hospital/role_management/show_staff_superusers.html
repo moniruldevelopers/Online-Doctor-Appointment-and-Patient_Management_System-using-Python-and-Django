@@ -1,0 +1,144 @@
+{% extends 'hospital/hospital_base.html' %}
+{% block content %}
+<style>
+/* Custom CSS for table */
+#staff-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+#staff-table th, #staff-table td {
+    padding: 12px;
+    text-align: left;
+    font-size: 16px;
+    color: #333;
+}
+
+#staff-table th {
+    background-color: #343a40;
+    color: white;
+    font-weight: bold;
+}
+
+#staff-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+#staff-table td {
+    background-color: white;
+}
+
+.badge-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.badge-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.badge-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Optional: Customize scrollbar (modern browsers) */
+.table-responsive::-webkit-scrollbar {
+    height: 8px; /* Height of horizontal scrollbar */
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background-color: #007bff; /* Scrollbar color */
+    border-radius: 10px; /* Rounded corners */
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Track background */
+}
+</style>
+
+<div class="container mt-4">
+        <!-- Page Header -->
+        {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Success!</strong> {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    <h2 class="text-center mb-4">Staff and Superusers</h2>
+
+    <div class="table-responsive shadow p-3 mb-5 bg-white rounded">
+        <table class="table table-hover table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Assigned Groups</th>
+                    <th>Staff</th>
+                    <th>Superuser</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in staff_and_superusers %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        {% if user.groups.all %}
+                            {% for group in user.groups.all %}
+                                <span class="badge badge-info">{{ group.name }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="badge badge-secondary">No group assigned</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.is_staff %}
+                            <span class="badge badge-success">Yes</span>
+                        {% else %}
+                            <span class="badge badge-danger">No</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.is_superuser %}
+                            <span class="badge badge-success">Yes</span>
+                        {% else %}
+                            <span class="badge badge-danger">No</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="POST" action="{% url 'remove_group_from_user' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="username" value="{{ user.username }}">
+                            <select name="group_id" class="form-control mb-2">
+                                {% for group in user.groups.all %}
+                                <option value="{{ group.id }}">{{ group.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-danger">Remove Group</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">No staff or superusers found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

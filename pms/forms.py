@@ -51,3 +51,12 @@ class DoctorProfileUpdateForm(forms.ModelForm):
         # Disable the 'user' field, but don't render the 'username' field in the template
         if self.instance and self.instance.user:
             self.fields['user'].disabled = True
+
+
+
+from django.contrib.auth.models import Group
+
+class GroupForm(forms.ModelForm):
+    class Meta:
+        model = Group
+        fields = ['name']

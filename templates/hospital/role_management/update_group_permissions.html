@@ -1,0 +1,91 @@
+{% extends 'hospital/hospital_base.html' %}
+{% block content %}
+<div class="container mt-4">
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Success!</strong> {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <h2>Update Permissions for Group: {{ group.name }}</h2>
+    <form method="POST" id="permissions_form">
+        {% csrf_token %}
+        <div class="row mb-4">
+            <!-- Available Permissions -->
+            <div class="col-md-5">
+                <h4>Available Permissions</h4>
+                <select multiple class="form-control" id="permissions_available" size="10">
+                    {% for permission in available_permissions %}
+                    <option value="{{ permission.id }}">
+                        {{ permission.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Buttons to move permissions -->
+            <div class="col-md-2 d-flex flex-column justify-content-center align-items-center">
+                <button type="button" class="btn btn-success mb-2" id="add_permission">Add &gt;</button>
+                <button type="button" class="btn btn-danger mb-2" id="remove_permission">&lt; Remove</button>
+            </div>
+
+            <!-- Selected Permissions -->
+            <div class="col-md-5">
+                <h4>Selected Permissions</h4>
+                <select multiple class="form-control" id="permissions_selected" name="permissions_selected" size="10">
+                    {% for permission in selected_permissions %}
+                    <option value="{{ permission.id }}">
+                        {{ permission.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary mb-3">Update Permissions</button>
+    </form>
+</div>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addPermissionBtn = document.getElementById('add_permission');
+        const removePermissionBtn = document.getElementById('remove_permission');
+        const permissionsAvailable = document.getElementById('permissions_available');
+        const permissionsSelected = document.getElementById('permissions_selected');
+        const permissionsForm = document.getElementById('permissions_form');
+
+        // Function to move selected options from one list to the other
+        function moveSelectedOptions(sourceSelect, targetSelect) {
+            const selectedOptions = Array.from(sourceSelect.selectedOptions);
+            selectedOptions.forEach(option => {
+                targetSelect.appendChild(option); // Move option to target
+            });
+        }
+
+        // Add selected permission from available to selected
+        addPermissionBtn.addEventListener('click', function() {
+            moveSelectedOptions(permissionsAvailable, permissionsSelected);
+        });
+
+        // Remove selected permission from selected to available
+        removePermissionBtn.addEventListener('click', function() {
+            moveSelectedOptions(permissionsSelected, permissionsAvailable);
+        });
+
+        // Select all options in the "Selected Permissions" list before submitting the form
+        permissionsForm.addEventListener('submit', function() {
+            const options = permissionsSelected.options;
+            for (let i = 0; i < options.length; i++) {
+                options[i].selected = true; // Mark all options as selected
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -94,15 +94,18 @@
 
         <!-- Role Management -->
         <div class="sb-sidenav-menu-heading">Role Management</div>
-        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#roleCollapse" aria-expanded="false" aria-controls="roleCollapse">
+        <a class="nav-link collapsed"  data-bs-toggle="collapse" data-bs-target="#roleCollapse" aria-expanded="false" aria-controls="roleCollapse">
             <div class="sb-nav-link-icon"><i class="fas fa-user-cog"></i></div>
-            Roles
+            Group
             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
         </a>
         <div class="collapse" id="roleCollapse" aria-labelledby="headingRole" data-bs-parent="#sidenavAccordion">
             <nav class="sb-sidenav-menu-nested nav">
-                <a class="nav-link" href="">Add Role</a>
-                <a class="nav-link" href="">Manage Roles</a>
+                <a class="nav-link" href="{% url 'create_group' %}">Create Group</a>
+                <a class="nav-link" href="{% url 'manage_roles' %}">Manage Group</a>
+                <a class="nav-link" href="{% url 'assign_group_to_user' %}">Assign User To Group</a>
+                <a class="nav-link" href="{% url 'show_staff_superusers' %}">Show all staff & superuser</a>
+               
             </nav>
         </div>
 
