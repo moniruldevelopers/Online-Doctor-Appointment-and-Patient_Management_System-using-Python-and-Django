@@ -15,7 +15,7 @@
 
 
     <!-- Appointment Management -->
-    <div class="sb-sidenav-menu-heading">Appointment Management</div>
+  
     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#appointmentCollapse" aria-expanded="false" aria-controls="appointmentCollapse">
         <div class="sb-nav-link-icon"><i class="fas fa-calendar-check"></i></div>
         Appointments
@@ -29,7 +29,7 @@
     </div>
     
         <!-- Medical Records Management -->
-        <div class="sb-sidenav-menu-heading">Medical Records Management</div>
+    
         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#medicalRecordCollapse" aria-expanded="false" aria-controls="medicalRecordCollapse">
             <div class="sb-nav-link-icon"><i class="fas fa-file-medical"></i></div>
             Medical Records
@@ -46,7 +46,7 @@
 
 
     <!-- Patient Management -->
-    <div class="sb-sidenav-menu-heading">Patient Management</div>
+   
     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#patientCollapse" aria-expanded="false" aria-controls="patientCollapse">
         <div class="sb-nav-link-icon"><i class="fas fa-procedures"></i></div>
         Patients
@@ -55,15 +55,14 @@
     <div class="collapse" id="patientCollapse" aria-labelledby="headingPatient" data-bs-parent="#sidenavAccordion">
         <nav class="sb-sidenav-menu-nested nav">
             <a class="nav-link" href="{% url 'admin_patient_register' %}">Create Patient Profile</a>
-        
             <a class="nav-link" href="{% url 'all_patients' %}">All Patients Profile</a>
-            <a class="nav-link" href="">Discharge Patients</a>
+   
         </nav>
     </div>
 
 
         <!-- Doctor Management -->
-        <div class="sb-sidenav-menu-heading">Doctor Management</div>
+      
         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#doctorCollapse" aria-expanded="false" aria-controls="doctorCollapse">
             <div class="sb-nav-link-icon"><i class="fas fa-user-md"></i></div>
             Doctors
@@ -78,7 +77,7 @@
         
 
         <!-- Employee Management -->
-        <div class="sb-sidenav-menu-heading">Employee Management</div>
+        
         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#employeeCollapse" aria-expanded="false" aria-controls="employeeCollapse">
             <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
             Employees
@@ -86,9 +85,8 @@
         </a>
         <div class="collapse" id="employeeCollapse" aria-labelledby="headingEmployee" data-bs-parent="#sidenavAccordion">
             <nav class="sb-sidenav-menu-nested nav">
-                <a class="nav-link" href="">Add Employee</a>
-                <a class="nav-link" href="">Manage Employees</a>
-                <a class="nav-link" href="">Employee Schedules</a>
+                <a class="nav-link" href="{% url 'admin_employee_register' %}">Create Employee</a>
+                <a class="nav-link" href="{% url 'all_employee' %}">All Employees</a>             
             </nav>
         </div>
 
@@ -99,6 +97,7 @@
             Group
             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
         </a>
+      
         <div class="collapse" id="roleCollapse" aria-labelledby="headingRole" data-bs-parent="#sidenavAccordion">
             <nav class="sb-sidenav-menu-nested nav">
                 <a class="nav-link" href="{% url 'create_group' %}">Create Group</a>
@@ -108,7 +107,11 @@
                
             </nav>
         </div>
-
+        <a class="nav-link" href="{% url 'all_users' %}">
+            <div class="sb-nav-link-icon"><i class="fa fa-user-friends"></i></div>
+            All User
+        </a>
+        
 
         <!-- Authentication Section -->
         <div class="sb-sidenav-menu-heading">Authentication</div>

@@ -1,0 +1,36 @@
+{% extends 'hospital/hospital_base.html' %}
+
+{% block title %}
+    User Create
+{% endblock title %}
+    
+{% block content %}
+<div class="container mt-4">
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Success!</strong> {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <h2 class="mb-4 text-center">Update Employee Profile</h2>
+    
+    <!-- Add Bootstrap shadow class to the form -->
+    <form method="post" enctype="multipart/form-data" class="shadow-lg p-4 rounded" style="max-width: 500px; margin: 0 auto; background-color: #fff;">
+        {% csrf_token %}
+        
+        <!-- Render the form fields with better spacing around inputs -->
+        {{ form.as_p }}
+        
+        <!-- Submit and Cancel buttons with better spacing -->
+        <div class="d-flex justify-content-between mt-3">
+            <button type="submit" class="btn btn-primary w-48">Save Changes</button>
+            <a href="{% url 'all_employee' %}" class="btn btn-secondary w-48 text-center">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

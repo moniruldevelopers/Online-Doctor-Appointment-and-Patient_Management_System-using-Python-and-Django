@@ -41,3 +41,13 @@ class DoctorProfileForm(forms.ModelForm):
             'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
         }
+
+class EmployeeProfileForm(forms.ModelForm):
+    class Meta:
+        model = EmployeeProfile
+        fields = ['name', 'mobile', 'profile_pic', 'designation']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'

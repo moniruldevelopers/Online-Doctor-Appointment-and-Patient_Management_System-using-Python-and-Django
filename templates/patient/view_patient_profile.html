@@ -15,7 +15,7 @@
         </div>
         <hr>
 
-        <h1 class="text-center">Patient Details</h1>
+        {% comment %} <h1 class="text-center">Patient Details</h1> {% endcomment %}
         
         <div class="table-responsive">
             <table class="table table-bordered">
@@ -136,8 +136,14 @@
             </table>
         </div>
 
+    
+            <div class="text-center " style="font-size: 10px;"  >
+                <p>Hi!{{ patient.full_name }}, Login Your Patient Profile Using Below Email and Password <span>Email: {{ email }}</span> Password: {{ password }}</p>  
+            </div>
+       
     </div>
-
+ 
+     
     <div class="text-center mt-4">
         <!-- Print Button -->
         <button onclick="window.print()" class="btn btn-success">

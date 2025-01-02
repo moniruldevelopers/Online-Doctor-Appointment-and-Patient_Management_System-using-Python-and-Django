@@ -90,8 +90,8 @@ class PatientProfile(models.Model):
     # Personal Information
     full_name = models.CharField(max_length=100)
     date_of_birth = models.DateField()
-    gender_choices = [('M', 'Male'), ('F', 'Female'), ('O', 'Other')]
-    gender = models.CharField(max_length=1, choices=gender_choices)
+    gender_choices = [('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')]
+    gender = models.CharField(max_length=6, choices=gender_choices)
     phone_number = models.CharField(
         max_length=11,        
         validators=[
@@ -140,6 +140,18 @@ class PatientProfile(models.Model):
         if not self.patient_id:
             self.patient_id = PatientIDTracker.generate_patient_id()
         super().save(*args, **kwargs)
+
+
+class EmployeeProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE,  related_name='employee_profile')  # Associate with User model
+    name = models.CharField(max_length=100)
+    mobile = models.CharField(max_length=15)
+    profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    designation = models.CharField(max_length=50)
+    join_date = models.DateField(auto_now_add = True)
+
+    def __str__(self):
+        return self.name
 
 
 

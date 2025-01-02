@@ -18,7 +18,7 @@ urlpatterns = [
 
     #hospital
     path('hospital_admin/', hospital_admin, name='hospital_admin'),
-    
+    path('get-generated-username/', get_generated_username, name='get_generated_username'),
 
     # doctor
     path('admin_doctor_register/',admin_doctor_register, name='admin_doctor_register'),
@@ -27,6 +27,14 @@ urlpatterns = [
     path('doctors/<int:doctor_id>/', update_signle_doctor, name='update_doctor'),
     path('doctors/<int:doctor_id>/delete/', delete_doctor, name='delete_doctor'),
 
+    #employee 
+    path('admin_employee_register/',admin_employee_register, name='admin_employee_register'),
+    path('user/<int:user_id>/employee-profile/', user_to_employee_profile, name='user_to_employee_profile'),
+    path('employees/', all_employee, name='all_employee'),
+    path('employees/edit/<int:pk>/', edit_employee, name='edit_employee'),  
+    path('employees/delete/<int:pk>/', delete_employee, name='delete_employee'),
+
+    
 
 
     #role management
@@ -39,5 +47,10 @@ urlpatterns = [
     path('get-username-suggestions/', get_username_suggestions, name='get_username_suggestions'),
     path('remove-group/', remove_group_from_user, name='remove_group_from_user'),
     path('staff-superusers/', show_staff_superusers, name='show_staff_superusers'),
+
+
+    # all user
+    path('users/', all_users, name='all_users'),
+    path('users/delete/<int:pk>/', delete_user, name='delete_user'),
  
 ]
