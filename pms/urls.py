@@ -52,5 +52,12 @@ urlpatterns = [
     # all user
     path('users/', all_users, name='all_users'),
     path('users/delete/<int:pk>/', delete_user, name='delete_user'),
+
+    #create appointment
+    path('appointments/', appointment_list, name='appointment_list'),
+    path('appointments/create/', create_appointment, name='create_appointment'),
+    path('ajax/doctor-details/', get_doctor_details, name='get_doctor_details'),
+    path('ajax/patient-details/', get_patient_details, name='get_patient_details'),
+ 
  
 ]

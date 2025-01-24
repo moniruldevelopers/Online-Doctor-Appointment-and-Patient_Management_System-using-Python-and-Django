@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5 d-flex justify-content-center">
+    <div class="card shadow-sm p-4" style="width: 400px;">
+        <h4 class="card-title text-center mb-4">Create Appointment</h4>
+        <form method="post" id="appointmentForm">
+            {% csrf_token %}
+            <div class="form-group mb-3">
+                <label for="patient" class="form-label">Patient ID</label>
+                {{ form.patient }}
+            </div>
+            <div class="form-group mb-3">
+                <label for="doctor" class="form-label">Doctor</label>
+                {{ form.doctor }}
+            </div>
+            <div class="form-group mb-3">
+                <label for="appointment_date" class="form-label">Appointment Date</label>
+                {{ form.appointment_date }}
+            </div>     
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-block">Save Appointment</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Include jQuery and Select2 -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+<script>
+    // Initialize Select2 for Patient ID and Doctor fields
+    $(document).ready(function() {
+        $('#id_patient, #id_doctor').select2({
+            placeholder: "Select an option",
+            allowClear: true,
+            width: '100%'
+        });
+    });
+</script>
+{% endblock %}

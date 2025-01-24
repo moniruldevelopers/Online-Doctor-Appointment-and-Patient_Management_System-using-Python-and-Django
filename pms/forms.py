@@ -51,3 +51,26 @@ class EmployeeProfileForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
+
+
+
+
+class AppointmentForm(forms.ModelForm):
+    patient = forms.ModelChoiceField(
+        queryset=PatientProfile.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control select2', 'data-placeholder': 'Search Patient ID'}),
+        label="Patient ID"
+    )
+    doctor = forms.ModelChoiceField(
+        queryset=DoctorProfile.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control select2', 'data-placeholder': 'Search Doctor'}),
+        label="Doctor"
+    )
+
+    class Meta:
+        model = Appointment
+        fields = ['patient', 'doctor', 'appointment_date']
+        widgets = {
+            'appointment_date': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            
+        }

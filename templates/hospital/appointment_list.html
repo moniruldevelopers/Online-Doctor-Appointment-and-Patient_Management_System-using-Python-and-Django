@@ -1,0 +1,54 @@
+{% extends "hospital/hospital_base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Appointment List</h2>
+
+<!-- Filter Dropdown for Doctor -->
+<form method="get">
+    <div class="form-group">
+        <label for="doctor">Select Doctor</label>
+        <select name="doctor" id="doctor" class="form-control">
+            <option value="">All Doctors</option>
+            {% for doctor in doctors %}
+                <option value="{{ doctor.doctor__id }}" {% if doctor.doctor__id == doctor_filter %}selected{% endif %}>
+                    {{ doctor.doctor__full_name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Filter</button>
+    <a href="?export=true{% if doctor_filter %}&doctor={{ doctor_filter }}{% endif %}" class="btn btn-success">Export to Excel</a>
+</form>
+
+
+    <table class="table table-bordered shadow-sm">
+        <thead>
+            <tr>
+                <th>Serial Number</th>
+                <th>Patient ID</th>
+                <th>Patient Phone</th>
+                <th>Patient Age</th>
+                <th>Doctor Name</th>
+                <th>Department</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appointment in appointments %}
+            <tr>
+                <td>{{ appointment.serial_number }}</td>
+                <td>{{ appointment.patient_unique_id }}</td>
+                <td>{{ appointment.patient.phone_number }}</td>
+                <td>{{ appointment.patient_age }}</td>
+                <td>{{ appointment.doctor.full_name }}</td>
+                <td>{{ appointment.doctor.department.name }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No appointments available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

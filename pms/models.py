@@ -4,8 +4,6 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 import uuid
 
-
-
 class SiteInfo(models.Model):
     site_name = models.CharField(max_length=20)
     color_logo = models.ImageField(upload_to='logo/')
@@ -29,7 +27,19 @@ class SiteInfo(models.Model):
         self.clean()  # Call clean method before saving
         super().save(*args, **kwargs)
 
+class EmployeeProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE,  related_name='employee_profile')  # Associate with User model
+    name = models.CharField(max_length=100)
+    mobile = models.CharField(max_length=15)
+    profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    designation = models.CharField(max_length=50)
+    join_date = models.DateField(auto_now_add = True)
 
+    def __str__(self):
+        return self.name
+    
+
+    
 # doctor profile 
 class Department(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -142,16 +152,23 @@ class PatientProfile(models.Model):
         super().save(*args, **kwargs)
 
 
-class EmployeeProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE,  related_name='employee_profile')  # Associate with User model
-    name = models.CharField(max_length=100)
-    mobile = models.CharField(max_length=15)
-    profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
-    designation = models.CharField(max_length=50)
-    join_date = models.DateField(auto_now_add = True)
+
+
+
+class Appointment(models.Model):
+    serial_number = models.AutoField(primary_key=True)  # Auto-incrementing serial number
+    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE, related_name='appointments')
+    patient_unique_id = models.CharField(max_length=10, editable=False)  # Renamed field
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE, related_name='appointments')
+   
+    appointment_date = models.DateTimeField()  
+
+    def save(self, *args, **kwargs):
+        # Auto-set patient_unique_id when the patient is selected
+        if self.patient:
+            self.patient_unique_id = self.patient.patient_id         
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
-
-
-
+        return f"Appointment #{self.serial_number}: Patient ID {self.patient_unique_id} with Dr. {self.doctor.full_name} on {self.appointment_date}"

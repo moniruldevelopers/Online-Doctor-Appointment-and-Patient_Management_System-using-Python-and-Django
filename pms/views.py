@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect,get_object_or_404
+from django.shortcuts import render,redirect,get_object_or_404,HttpResponse
 from django.http import HttpResponseBadRequest
 from django.contrib.auth.decorators import user_passes_test
 from .models import *
@@ -22,6 +22,11 @@ from django.template.loader import render_to_string
 from django.db.models import Max
 from datetime import datetime
 from django.http import HttpResponseForbidden
+
+from dateutil.relativedelta import relativedelta
+from datetime import datetime
+import xlwt
+
 
 
 # website view section
@@ -648,3 +653,129 @@ def delete_user(request, pk):
     
     # If the request method is not POST, return a forbidden response
     return HttpResponseForbidden("Invalid request method")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def create_appointment(request):
+    if request.method == 'POST':
+        form = AppointmentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('appointment_list')  # Redirect to the appointment list or another page
+    else:
+        form = AppointmentForm()
+    return render(request, 'hospital/create_appointment.html', {'form': form})
+
+# AJAX to auto-populate department and patient phone
+def get_doctor_details(request):
+    doctor_id = request.GET.get('doctor_id')
+    if doctor_id:
+        doctor = get_object_or_404(DoctorProfile, id=doctor_id)
+        return JsonResponse({'department': doctor.department.name if doctor.department else 'No Department'})
+    return JsonResponse({'department': 'No Department'})
+
+def get_patient_details(request):
+    patient_id = request.GET.get('patient_id')
+    if patient_id:
+        patient = get_object_or_404(PatientProfile, id=patient_id)
+        return JsonResponse({'phone_number': patient.phone_number})
+    return JsonResponse({'phone_number': ''})
+
+
+
+
+def appointment_list(request):
+    doctor_filter = request.GET.get('doctor')  # Get the doctor filter value from the query string
+    
+    appointments = Appointment.objects.select_related('patient', 'doctor', 'doctor__department')
+
+    # Filter appointments based on doctor
+    if doctor_filter:
+        appointments = appointments.filter(doctor__id=doctor_filter)
+
+    # Calculate the age in years, months, and days for each appointment's patient
+    for appointment in appointments:
+        if appointment.patient.date_of_birth:
+            today = datetime.today().date()
+            dob = appointment.patient.date_of_birth
+            age = relativedelta(today, dob)
+            age_parts = []
+
+            # Add age parts only if they are greater than 0
+            if age.years > 0:
+                age_parts.append(f"{age.years} year{'s' if age.years > 1 else ''}")
+            if age.months > 0:
+                age_parts.append(f"{age.months} month{'s' if age.months > 1 else ''}")
+            if age.days > 0:
+                age_parts.append(f"{age.days} day{'s' if age.days > 1 else ''}")
+
+            # Join age parts and set it as a string
+            appointment.patient_age = ", ".join(age_parts) if age_parts else "0 days"
+        else:
+            appointment.patient_age = "Age not available"
+    
+    # Get list of doctors for the filter dropdown
+    doctors = Appointment.objects.values('doctor__id', 'doctor__full_name').distinct()
+
+    # Check if the user wants to export the data to Excel
+    if 'export' in request.GET:
+        if doctor_filter:
+            # Fetch the doctor and department details based on the filter
+            doctor = DoctorProfile.objects.get(id=doctor_filter)
+            department_name = doctor.department.name if doctor.department else "No Department"
+            doctor_name = doctor.full_name
+
+            # Export only the filtered appointments
+            return export_to_excel(appointments, department_name, doctor_name)
+
+    return render(request, 'hospital/appointment_list.html', {
+        'appointments': appointments,
+        'doctors': doctors,
+        'doctor_filter': doctor_filter
+    })
+
+
+
+def export_to_excel(appointments, department_name, doctor_name):
+    # Create the response object with the correct Excel mime type
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = f'attachment; filename="{department_name} - {doctor_name}.xls"'
+
+    # Create the Excel workbook and sheet
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('Appointments')
+
+    # Define the headers
+    headers = ['Serial Number', 'Patient ID', 'Patient Phone', 'Patient Age', 'Doctor Name', 'Department']
+    for col_num, header in enumerate(headers):
+        ws.write(0, col_num, header)
+
+    # Write the data to the sheet
+    for row_num, appointment in enumerate(appointments, 1):
+        ws.write(row_num, 0, row_num)  # Serial Number
+        ws.write(row_num, 1, appointment.patient_unique_id)  # Patient ID
+        ws.write(row_num, 2, appointment.patient.phone_number)  # Patient Phone
+        ws.write(row_num, 3, appointment.patient_age)  # Patient Age
+        ws.write(row_num, 4, appointment.doctor.full_name)  # Doctor Name
+        ws.write(row_num, 5, appointment.doctor.department.name if appointment.doctor.department else 'No Department')  # Department
+
+    # Save the workbook to the response
+    wb.save(response)
+    return response
