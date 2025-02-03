@@ -1,0 +1,31 @@
+{% extends "hospital/hospital_base.html" %}
+
+{% block content %}
+<div class="container col-md-6 mt-5 shadow-lg p-3 mb-5 bg-white rounded">
+   
+        <div class="card-header bg-primary text-white p-2">
+            <h4 class="card-title text-center mb-0">
+                {% if edit_mode %}
+                    Edit Team Member
+                {% else %}
+                    Add Team Member
+                {% endif %}
+            </h4>
+        </div>
+      
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">
+                {% if edit_mode %}
+                    Update Team Member
+                {% else %}
+                    Add Team Member
+                {% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

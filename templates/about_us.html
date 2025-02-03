@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}
     
@@ -6,6 +7,9 @@
 
 {% block content %}
     
+
+
+
 <!-- About Start -->
 <div class="container-fluid py-5 wow fadeInUp" data-wow-delay="0.1s">
     <div class="container">
@@ -27,7 +31,6 @@
                         <h5 class="mb-3"><i class="fa fa-check-circle text-primary me-3"></i>Affordable Care</h5>
                     </div>
                 </div>
-                <a href="appointment.html" class="btn btn-primary py-3 px-5 mt-4 wow zoomIn" data-wow-delay="0.6s">Make Appointment</a>
             </div>
             <div class="col-lg-5" style="min-height: 500px;">
                 <div class="position-relative h-100">
@@ -39,6 +42,41 @@
 </div>
 <!-- About End -->
 
+
+<!-- About Section -->
+<section class="about-section py-5">
+    <div class="container">
+        <!-- UGV Blood Bank Intro Text -->
+        <div class="row">
+            <div class="col-12 text-center">    
+                <p class="lead text-muted">
+                    
+                </p>
+                <p class="lead text-muted">
+                  
+                </p>
+            </div>
+        </div>
+
+        <!-- Team Members Section -->
+<!-- Team Members Section -->
+<h3 class="text-center mb-4">Meet Our Team</h3>
+<div class="row">
+    {% for member in team_members %}
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-lg border-0 rounded-3">
+            <img src="{{ member.image.url }}" alt="{{ member.name }}" class="card-img-top" style="height: 300px; object-fit: contain; width: 100%;">
+            <div class="card-body">
+                <h5 class="card-title">{{ member.name }}</h5>
+                <p class="card-text"><strong>ID:</strong> {{ member.member_id }}</p>
+                <p class="card-text"><strong>Phone:</strong> {{ member.phone_number }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+  
+</section>
 
 
 {% endblock content %}

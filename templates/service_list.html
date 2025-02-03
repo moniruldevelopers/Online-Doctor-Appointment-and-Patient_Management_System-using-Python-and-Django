@@ -1,0 +1,71 @@
+{% extends 'hospital/hospital_base.html' %}
+
+{% block content %}
+    <div class="container mt-5 shadow-lg p-3 mb-5 bg-white rounded">
+        <!-- Header with background color -->
+        <div class="text-center bg-primary text-white py-2 rounded-top">
+            <h2 class="mb-0">Service List</h2>
+        </div>
+
+        {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Success!</strong> {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <a href="{% url 'add_service' %}" class="btn btn-primary m-2">Add Service</a>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <table class="table table-bordered shadow-sm table-hover">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Image</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in services %}
+                        <tr class="table-row">
+                            <td>{{ service.name }}</td>
+                            <td>{{ service.price }}</td>
+                            <td>
+                                <!-- Smaller thumbnail for the image -->
+                                <img src="{{ service.image.url }}" alt="{{ service.name }}" style="width: 60px; height: 60px; object-fit: cover;">
+                            </td>
+                            <td>
+                                <a href="{% url 'edit_service' service.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                                <button type="submit" name="delete_service" value="{{ service.pk }}" class="btn btn-danger btn-sm">Delete</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+    </div>
+{% endblock %}
+
+{% block custom_css %}
+    <style>
+        .table-row {
+            height: 50px; /* Adjust the height of the rows */
+        }
+        .table td, .table th {
+            vertical-align: middle; /* Vertically align text in the center */
+            padding: 10px; /* Adjust the padding for smaller height */
+        }
+        .table-primary {
+            background-color: #f8f9fa !important; /* Light background for table header */
+        }
+        .btn {
+            font-size: 0.9rem; /* Adjust button font size */
+        }
+    </style>
+{% endblock %}

@@ -6,7 +6,7 @@
         <div class="row gx-0">
             <div class="col-md-6 text-center text-lg-start mb-2 mb-lg-0">
                 <div class="d-inline-flex align-items-center">
-                    <small class="py-2"><i class="far fa-clock text-primary me-2"></i>Opening Hours: Saturday - Thursday: 6.00 am - 10.00 pm, Friday Closed </small>
+                    <small class="py-2"><i class="far fa-clock text-primary me-2"></i>{{ site_info.opening_hours }} </small>
                 </div>
             </div>
             <div class="col-md-6 text-center text-lg-end">
@@ -35,10 +35,10 @@
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <div class="navbar-nav ms-auto py-0">
                 <a href="{% url 'home' %}" class="nav-item nav-link active">Home</a>
-                <a href="about.html" class="nav-item nav-link">Service</a>
-                <a href="service.html" class="nav-item nav-link">Doctor List</a>
+                <a href="{% url 'public_service_list' %}" class="nav-item nav-link">Service</a>
+                <a href="{% url 'public_doctor_list' %}" class="nav-item nav-link">Doctor List</a>
                 <a href="service.html" class="nav-item nav-link">Appointment</a>
-                <a href="service.html" class="nav-item nav-link">About Us</a>
+                <a href="{% url 'about_us' %}" class="nav-item nav-link">About Us</a>
                 {% comment %} <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">About</a>
                     <div class="dropdown-menu m-0">
@@ -47,7 +47,7 @@
                        
                     </div>
                 </div> {% endcomment %}
-                <a href="contact.html" class="nav-item nav-link">Contact</a>
+                <a href="{% url 'contact' %}" class="nav-item nav-link">Contact</a>
             </div>
             
             {% if user.is_authenticated %}

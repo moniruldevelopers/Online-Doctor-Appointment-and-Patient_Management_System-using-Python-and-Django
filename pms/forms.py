@@ -4,6 +4,80 @@ from .models import *
 from django import forms
 from django.contrib.auth.models import Group
 
+
+
+
+
+
+class SiteInfoForm(forms.ModelForm):
+    class Meta:
+        model = SiteInfo
+        fields = '__all__'
+        widgets = {
+            'site_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'color_logo': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+            'white_logo': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'address': forms.TextInput(attrs={'class': 'form-control'}),
+            'opening_hours':forms.TextInput(attrs={'class': 'form-control'}),
+            'site_facebook': forms.URLInput(attrs={'class': 'form-control'}),
+            'site_x': forms.URLInput(attrs={'class': 'form-control'}),
+            'site_instagram': forms.URLInput(attrs={'class': 'form-control'}),
+            'site_pinterest': forms.URLInput(attrs={'class': 'form-control'}),
+        }
+
+
+
+class CarouselForm(forms.ModelForm):
+    class Meta:
+        model = Carousel
+        fields = ['title', 'subtitle', 'image']
+
+
+
+class ContactForm(forms.ModelForm):
+    class Meta:
+        model = Contact
+        fields = ['name', 'phone_number', 'email', 'subject', 'message']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your Name'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your Phone'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Your Email'}),
+            'subject': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Subject'}),
+            'message': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Your Message'}),
+        }
+
+class TeamMemberForm(forms.ModelForm):
+    class Meta:
+        model = TeamMember
+        fields = ['name', 'member_id', 'phone_number', 'image', 'bio']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Name'}),
+            'member_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Member ID'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Bio', 'rows': 4}),
+        }
+
+
+
+class ServiceForm(forms.ModelForm):
+    class Meta:
+        model = Service
+        fields = ['name', 'price', 'image']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Service Name'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Price'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+        }
+
+
+
+
+
+
+
 class GroupForm(forms.ModelForm):
     class Meta:
         model = Group
@@ -73,4 +147,23 @@ class AppointmentForm(forms.ModelForm):
         widgets = {
             'appointment_date': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
             
+        }
+
+class OnlineAppointmentForm(forms.ModelForm):
+    class Meta:
+        model = OnlineAppointment
+        fields = ['patient_name', 'phone_number', 'age', 'department', 'doctor', 'appointment_date']
+        widgets = {
+            'department': forms.Select(attrs={'class': 'form-select bg-light border-0', 'style': 'height: 55px;'}),
+            'doctor': forms.Select(attrs={'class': 'form-select bg-light border-0', 'style': 'height: 55px;'}),
+            'patient_name': forms.TextInput(attrs={'class': 'form-control bg-light border-0', 'placeholder': 'Patient Name', 'style': 'height: 55px;'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control bg-light border-0', 'placeholder': 'Phone Number', 'style': 'height: 55px;'}),
+            'age': forms.NumberInput(attrs={'class': 'form-control bg-light border-0', 'placeholder': 'Age', 'style': 'height: 55px;'}),
+            'appointment_date': forms.TextInput(attrs={
+                'class': 'form-control bg-light border-0 datetimepicker-input',
+                'placeholder': 'Appointment Date and Time',
+                'style': 'height: 55px;',
+                'data-target': '#appointment_date',
+                'data-toggle': 'datetimepicker',
+            }),
         }

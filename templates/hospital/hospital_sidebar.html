@@ -23,7 +23,7 @@
     </a>
     <div class="collapse" id="appointmentCollapse" aria-labelledby="headingAppointments" data-bs-parent="#sidenavAccordion">
         <nav class="sb-sidenav-menu-nested nav">
-            <a class="nav-link" href="">Schedule Appointment</a>
+            <a class="nav-link" href="{% url 'appointment_list' %}">Appointment List</a>
             <a class="nav-link" href="">Manage Appointments</a>
         </nav>
     </div>
@@ -90,6 +90,43 @@
             </nav>
         </div>
 
+        
+
+
+
+
+
+
+        <div class="sb-sidenav-menu-heading">Hospital Information</div>
+        <a class="nav-link" href="{% url 'site-info' %}">
+            <div class="sb-nav-link-icon"><i class="fa fa-cogs"></i></div>
+            Site Information Update
+        </a>
+        <a class="nav-link" href="{% url 'carousel_list' %}">
+            <div class="sb-nav-link-icon"><i class="fa fa-images"></i></div>
+            Carousel List
+        </a>
+        
+        <a class="nav-link" href="{% url 'contact_list' %}">
+            <div class="sb-nav-link-icon"><i class="fa fa-envelope"></i></div>
+            Contact Message
+        </a>
+
+        <a class="nav-link" href="{% url 'team_member_list' %}">
+            <div class="sb-nav-link-icon"><i class="fa fa-users"></i></div>  <!-- Changed to 'fa-users' for team members -->
+            Team Member List
+        </a>
+        <a class="nav-link" href="{% url 'service_list' %}">
+            <div class="sb-nav-link-icon"><i class="fa fa-cogs"></i></div>  <!-- Changed to 'fa-cogs' for services -->
+            Service List
+        </a>
+        
+        
+
+
+
+
+
         <!-- Role Management -->
         <div class="sb-sidenav-menu-heading">Role Management</div>
         <a class="nav-link collapsed"  data-bs-toggle="collapse" data-bs-target="#roleCollapse" aria-expanded="false" aria-controls="roleCollapse">
@@ -111,7 +148,7 @@
             <div class="sb-nav-link-icon"><i class="fa fa-user-friends"></i></div>
             All User
         </a>
-        
+
 
         <!-- Authentication Section -->
         <div class="sb-sidenav-menu-heading">Authentication</div>

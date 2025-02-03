@@ -1,0 +1,64 @@
+{% extends "hospital/hospital_base.html" %}
+
+{% block content %}
+<div class="container mt-4 col-md-6" >
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">{% if form.instance.pk %} Edit {% else %} Add {% endif %} Carousel Slide</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Title Field -->
+                    <div class="col-md-6 mb-3">
+                        <label for="id_title" class="form-label">Title</label>
+                        {{ form.title }}
+                    </div>
+                    
+                    <!-- Subtitle Field -->
+                    <div class="col-md-6 mb-3">
+                        <label for="id_subtitle" class="form-label">Subtitle</label>
+                        {{ form.subtitle }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Image Upload Field -->
+                    <div class="col-md-12 mb-3">
+                        <label for="id_image" class="form-label">Slide Image</label>
+                        {{ form.image }}
+                        {% if form.instance.image %}
+                            <div class="mt-2">
+                                <img src="{{ form.instance.image.url }}" alt="Current Image" class="img-thumbnail" width="200">
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <a href="{% url 'carousel_list' %}" class="btn btn-secondary me-2">Cancel</a>
+                    <button type="submit" class="btn btn-success">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Improve form input styles */
+    input, textarea, select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        display: block;
+    }
+</style>
+{% endblock %}

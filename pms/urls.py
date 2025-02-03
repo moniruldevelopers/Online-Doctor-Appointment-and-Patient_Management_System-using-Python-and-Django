@@ -5,6 +5,30 @@ from .views import *
 
 urlpatterns = [   
     path('',home,name='home'),
+
+    path('site-info/', site_info_view, name='site-info'),
+    path("contact/", contact_view, name="contact"),
+    path('contact-list/', contact_list_view, name='contact_list'),  # URL for the contact list page
+    path('about/', about_us, name='about_us'),
+
+    path('team-members/', team_member_list, name='team_member_list'),
+    path('team-members/add/', add_team_member, name='add_team_member'),
+    path('team-members/edit/<int:pk>/', edit_team_member, name='edit_team_member'),
+
+    path('services/', service_list, name='service_list'),  # List services
+    path('service/add/', service_view, name='add_service'),  # Add service
+    path('service/edit/<int:pk>/', service_view, name='edit_service'),  # Edit service
+    path('public-services/', public_service_list, name='public_service_list'),
+  
+    path('doctors/', public_doctor_list, name='public_doctor_list'),
+
+
+
+    path('carousel/', carousel_list, name='carousel_list'),
+    path('carousel/add/', add_carousel, name='add_carousel'),
+    path('carousel/edit/<int:carousel_id>/', edit_carousel, name='edit_carousel'),
+  
+
     # patient section 
     path("admin_patient_register/", admin_patient_register, name="admin_patient_register"),
     path('patient/<int:user_id>/update-profile/', user_to_patient_profile, name='user_to_patient_profile'),
@@ -58,6 +82,7 @@ urlpatterns = [
     path('appointments/create/', create_appointment, name='create_appointment'),
     path('ajax/doctor-details/', get_doctor_details, name='get_doctor_details'),
     path('ajax/patient-details/', get_patient_details, name='get_patient_details'),
+    path('success/', success_page, name='success'),  # Success page URL
  
  
 ]

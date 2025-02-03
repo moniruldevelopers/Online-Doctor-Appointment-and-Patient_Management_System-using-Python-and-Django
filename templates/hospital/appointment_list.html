@@ -4,25 +4,40 @@
 <div class="container mt-5">
     <h2>Appointment List</h2>
 
-<!-- Filter Dropdown for Doctor -->
-<form method="get">
-    <div class="form-group">
-        <label for="doctor">Select Doctor</label>
-        <select name="doctor" id="doctor" class="form-control">
-            <option value="">All Doctors</option>
-            {% for doctor in doctors %}
-                <option value="{{ doctor.doctor__id }}" {% if doctor.doctor__id == doctor_filter %}selected{% endif %}>
-                    {{ doctor.doctor__full_name }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
-    <button type="submit" class="btn btn-primary">Filter</button>
-    <a href="?export=true{% if doctor_filter %}&doctor={{ doctor_filter }}{% endif %}" class="btn btn-success">Export to Excel</a>
-</form>
+    <!-- Filter Dropdown for Doctor -->
+    <form method="get" id="filter-form">
+        <div class="form-group">
+            <label for="doctor">Select Doctor</label>
+            <select name="doctor" id="doctor" class="form-control">
+                <option value="">All Doctors</option>
+                {% for doctor in doctors %}
+                    <option value="{{ doctor.id }}" {% if doctor.id|stringformat:"s" == doctor_filter %}selected{% endif %}>
+                        {{ doctor.full_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <br>
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="?export=true{% if doctor_filter %}&doctor={{ doctor_filter }}{% endif %}" class="btn btn-success">Export to Excel</a>
+        <button type="button" onclick="window.print();" class="btn btn-secondary">Print</button>
+        {% if doctor_filter %}
+            <a href="{% url 'appointment_list' %}" class="btn btn-danger">Clear Filter</a>
+        {% endif %}
+    </form>
 
+    <!-- Show Filtered Doctor -->
+    {% if doctor_filter %}
+        <div class="alert alert-info mt-3">
+            Showing appointments for <strong>{{ filtered_doctor_name }}</strong>.
+        </div>
+    {% else %}
+        <div class="alert alert-info mt-3">
+            Showing appointments for <strong>All Doctors</strong>.
+        </div>
+    {% endif %}
 
-    <table class="table table-bordered shadow-sm">
+    <table class="table table-bordered shadow-sm print-table">
         <thead>
             <tr>
                 <th>Serial Number</th>
@@ -51,4 +66,37 @@
         </tbody>
     </table>
 </div>
+
+<!-- CSS for Printing -->
+<style>
+@media print {
+    /* Hide everything except the table and filtered doctor info */
+   .container{
+    width: 100%;
+   }
+
+    /* Ensure table layout remains intact for printing */
+    .print-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid black;
+    }
+    .print-table th, .print-table td {
+        border: 1px solid black;
+        text-align: left;
+        padding: 8px;
+
+    }
+    .print-table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+
+    /* Hide buttons and form in print view */
+    .btn, form {
+        display: none !important;
+    }
+}
+</style>
+
 {% endblock %}

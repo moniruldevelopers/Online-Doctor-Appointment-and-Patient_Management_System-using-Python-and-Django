@@ -7,7 +7,7 @@ from django.contrib import messages
 from .forms import *
 # patient profile 
 from django.shortcuts import render, redirect
-from .models import PatientProfile
+from .models import *
 from .forms import PatientProfileForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group, User,Permission
@@ -16,7 +16,7 @@ from django.http import JsonResponse
 from .forms import GroupForm
 from authportal.forms import *
 from datetime import date
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.db.models import Max
@@ -26,20 +26,238 @@ from django.http import HttpResponseForbidden
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
 import xlwt
+import csv
+# Function to check if the user is a superuser
+def superuser_required(user):
+    return user.is_superuser
 
 
 
-# website view section
+
+
+@login_required
+@user_passes_test(superuser_required)
+def site_info_view(request):
+    site_info = SiteInfo.objects.first()  # Get the only existing instance
+
+    if request.method == "POST":
+        form = SiteInfoForm(request.POST, request.FILES, instance=site_info)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Site information updated successfully!")
+            return redirect('site-info')  # Redirect to the same page after saving
+    else:
+        form = SiteInfoForm(instance=site_info)
+
+    return render(request, 'site_info.html', {'form': form})
+
+
+
+@login_required
+@user_passes_test(superuser_required)
+def contact_view(request):
+    # Get the site information
+    site_info = SiteInfo.objects.first()
+
+    if request.method == "POST":
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your message has been sent successfully!")
+            return redirect('contact')  # Redirect to prevent duplicate form submission
+    else:
+        form = ContactForm()
+
+    return render(request, "contact.html", {
+        "form": form,
+        "site_info": site_info
+    })
+
+@login_required
+@user_passes_test(superuser_required)
+def contact_list_view(request):
+    # Fetch all the contacts from the database
+    contacts = Contact.objects.all().order_by('-sent_at')  # Order by sent_at (most recent first)
+    
+    # Paginate the contacts, showing 3 items per page
+    paginator = Paginator(contacts, 3)
+    page_number = request.GET.get('page')  # Get the current page number from the request
+    page_obj = paginator.get_page(page_number)  # Get the Page object for the current page
+    
+    return render(request, "contact_list.html", {"page_obj": page_obj})
+
+def team_member_list(request):
+    team_members = TeamMember.objects.all()
+    if request.method == 'POST' and 'delete_team_member' in request.POST:
+        team_member_id = request.POST.get('delete_team_member')
+        team_member = get_object_or_404(TeamMember, pk=team_member_id)
+        team_member.delete()
+        messages.success(request, 'Team member deleted successfully!')
+        return redirect('team_member_list')
+    return render(request, 'team_member_list.html', {'team_members': team_members})
+
+def add_team_member(request):
+    if request.method == 'POST':
+        form = TeamMemberForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Team member added successfully!')
+            return redirect('team_member_list')
+    else:
+        form = TeamMemberForm()
+    return render(request, 'add_team_member.html', {'form': form})
+
+def edit_team_member(request, pk):
+    team_member = get_object_or_404(TeamMember, pk=pk)
+    if request.method == 'POST':
+        form = TeamMemberForm(request.POST, request.FILES, instance=team_member)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Team member updated successfully!')
+            return redirect('team_member_list')
+    else:
+        form = TeamMemberForm(instance=team_member)
+    return render(request, 'add_team_member.html', {'form': form, 'edit_mode': True})
+
+def about_us(request):
+    team_members = TeamMember.objects.all()
+    return render(request, 'about_us.html', {'team_members': team_members})
+
+
+
+# View to list all services and handle delete operation
+def service_list(request):
+    services = Service.objects.all()
+    
+    if request.method == 'POST' and 'delete_service' in request.POST:
+        service_id = request.POST.get('delete_service')
+        service = get_object_or_404(Service, pk=service_id)
+        service.delete()
+        messages.success(request, 'Service deleted successfully!')
+        return redirect('service_list')
+    
+    return render(request, 'service_list.html', {'services': services})
+
+# View for adding and editing a service
+def service_view(request, pk=None):
+    if pk:
+        service = get_object_or_404(Service, pk=pk)  # If editing, fetch the existing service
+    else:
+        service = None  # If adding, no service
+
+    if request.method == 'POST':
+        form = ServiceForm(request.POST, request.FILES, instance=service)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Service added successfully!')
+            return redirect('service_list')  # Redirect to service list after adding/editing
+    else:
+        form = ServiceForm(instance=service)  # Populate form with existing service or blank form
+
+    return render(request, 'service_form.html', {'form': form, 'service': service})
+
+def public_service_list(request):
+    services = Service.objects.all()
+    return render(request, 'public_service_list.html', {'services': services})
+
+def public_doctor_list(request):
+    # Fetch active doctors
+    doctors = DoctorProfile.objects.filter(is_active=True)
+    return render(request, 'public_doctor_list.html', {'doctors': doctors})
+
+
+
+
+
+def carousel_list(request):
+    carousels = Carousel.objects.all()
+
+    if request.method == 'POST' and 'delete_carousel' in request.POST:
+        carousel_id = request.POST.get('delete_carousel')
+        carousel = get_object_or_404(Carousel, pk=carousel_id)
+        carousel.delete()
+        messages.success(request, "Carousel slide deleted successfully!")
+        return redirect('carousel_list')
+
+    return render(request, 'carousel_list.html', {'carousels': carousels})
+
+
+
+
+
+
+
+# Add a new carousel slide
+def add_carousel(request):
+    if request.method == 'POST':
+        form = CarouselForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Carousel slide added successfully!")
+            return redirect('carousel_list')
+    else:
+        form = CarouselForm()
+    
+    return render(request, 'carousel_form.html', {'form': form})
+
+# Edit an existing carousel slide
+def edit_carousel(request, carousel_id):
+    carousel = get_object_or_404(Carousel, id=carousel_id)
+    if request.method == 'POST':
+        form = CarouselForm(request.POST, request.FILES, instance=carousel)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Carousel slide updated successfully!")
+            return redirect('carousel_list')
+    else:
+        form = CarouselForm(instance=carousel)
+
+    return render(request, 'carousel_form.html', {'form': form})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def success_page(request):
+    return render(request, 'success.html')
+
+
+
 def home(request):
-    site_info = SiteInfo.objects.first()  # Get the first (and only) instance
+    site_info = SiteInfo.objects.first()  # Fetch site info data
+    doctors = DoctorProfile.objects.all().order_by('-id')[:2]  # Get last 2 added doctors
+    carousels = Carousel.objects.all().order_by('-id')[:3]  # Get last 3 added carousel items
+
+    if request.method == 'POST':
+        form = OnlineAppointmentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('success')  # Redirect to the success page
+    else:
+        form = OnlineAppointmentForm()
+
+    departments = Department.objects.all()
+    
     context = {
         'site_info': site_info,
+        'form': form,
+        'doctors': doctors,  # Pass only the last two doctors
+        'carousels': carousels,  # Pass last 3 carousel items
     }
-    return render (request, 'home.html', context)
-
-
-
-
+    return render(request, 'home.html', context)
 
 #patient section for patient
 def view_profile(request):
@@ -700,82 +918,74 @@ def get_patient_details(request):
 
 
 
+def export_to_excel(appointments, department_name, doctor_name):
+    """
+    Utility function to export appointments to a CSV file.
+    """
+    # Construct the file name
+    file_name = f"{department_name}_{doctor_name}_appointment_list.csv".replace(" ", "_")
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Serial Number', 'Patient ID', 'Patient Phone', 'Patient Age', 'Doctor Name', 'Department'])
+
+    for appointment in appointments:
+        writer.writerow([
+            appointment.serial_number,
+            appointment.patient_unique_id,
+            appointment.patient.phone_number,
+            getattr(appointment, 'patient_age', 'N/A'),
+            appointment.doctor.full_name,
+            appointment.doctor.department.name,
+        ])
+
+    return response
+
 
 def appointment_list(request):
-    doctor_filter = request.GET.get('doctor')  # Get the doctor filter value from the query string
-    
+    doctor_filter = request.GET.get('doctor')  # Get the selected doctor filter value
     appointments = Appointment.objects.select_related('patient', 'doctor', 'doctor__department')
+    filtered_doctor_name = "All Doctors"
+    department_name = "All Departments"
 
-    # Filter appointments based on doctor
+    # Filter appointments based on the selected doctor
     if doctor_filter:
         appointments = appointments.filter(doctor__id=doctor_filter)
+        # Retrieve the selected doctor's name and department
+        doctor = DoctorProfile.objects.filter(id=doctor_filter).first()
+        if doctor:
+            filtered_doctor_name = doctor.full_name
+            department_name = doctor.department.name if doctor.department else "Unknown Department"
 
-    # Calculate the age in years, months, and days for each appointment's patient
+    # Calculate age for each patient's appointment
+    today = datetime.today().date()
     for appointment in appointments:
         if appointment.patient.date_of_birth:
-            today = datetime.today().date()
             dob = appointment.patient.date_of_birth
             age = relativedelta(today, dob)
             age_parts = []
-
-            # Add age parts only if they are greater than 0
             if age.years > 0:
                 age_parts.append(f"{age.years} year{'s' if age.years > 1 else ''}")
             if age.months > 0:
                 age_parts.append(f"{age.months} month{'s' if age.months > 1 else ''}")
             if age.days > 0:
                 age_parts.append(f"{age.days} day{'s' if age.days > 1 else ''}")
-
-            # Join age parts and set it as a string
             appointment.patient_age = ", ".join(age_parts) if age_parts else "0 days"
         else:
             appointment.patient_age = "Age not available"
-    
-    # Get list of doctors for the filter dropdown
-    doctors = Appointment.objects.values('doctor__id', 'doctor__full_name').distinct()
 
-    # Check if the user wants to export the data to Excel
+    # Get distinct list of doctors for the dropdown
+    doctors = DoctorProfile.objects.all()
+
+    # Handle export functionality
     if 'export' in request.GET:
-        if doctor_filter:
-            # Fetch the doctor and department details based on the filter
-            doctor = DoctorProfile.objects.get(id=doctor_filter)
-            department_name = doctor.department.name if doctor.department else "No Department"
-            doctor_name = doctor.full_name
-
-            # Export only the filtered appointments
-            return export_to_excel(appointments, department_name, doctor_name)
+        return export_to_excel(appointments, department_name, filtered_doctor_name)
 
     return render(request, 'hospital/appointment_list.html', {
         'appointments': appointments,
         'doctors': doctors,
-        'doctor_filter': doctor_filter
+        'doctor_filter': doctor_filter,
+        'filtered_doctor_name': filtered_doctor_name,  # Pass the filtered doctor's name
     })
-
-
-
-def export_to_excel(appointments, department_name, doctor_name):
-    # Create the response object with the correct Excel mime type
-    response = HttpResponse(content_type='application/vnd.ms-excel')
-    response['Content-Disposition'] = f'attachment; filename="{department_name} - {doctor_name}.xls"'
-
-    # Create the Excel workbook and sheet
-    wb = xlwt.Workbook(encoding='utf-8')
-    ws = wb.add_sheet('Appointments')
-
-    # Define the headers
-    headers = ['Serial Number', 'Patient ID', 'Patient Phone', 'Patient Age', 'Doctor Name', 'Department']
-    for col_num, header in enumerate(headers):
-        ws.write(0, col_num, header)
-
-    # Write the data to the sheet
-    for row_num, appointment in enumerate(appointments, 1):
-        ws.write(row_num, 0, row_num)  # Serial Number
-        ws.write(row_num, 1, appointment.patient_unique_id)  # Patient ID
-        ws.write(row_num, 2, appointment.patient.phone_number)  # Patient Phone
-        ws.write(row_num, 3, appointment.patient_age)  # Patient Age
-        ws.write(row_num, 4, appointment.doctor.full_name)  # Doctor Name
-        ws.write(row_num, 5, appointment.doctor.department.name if appointment.doctor.department else 'No Department')  # Department
-
-    # Save the workbook to the response
-    wb.save(response)
-    return response

@@ -1,0 +1,61 @@
+{% extends "hospital/hospital_base.html" %}
+
+
+{% block content %}
+<div class="container mt-5 shadow-lg p-3 mb-5 bg-white rounded">
+    <h4 class="text-center mb-4 bg-primary text-white p-2">Team Members</h4>
+
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Success!</strong> {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!-- Button to open the "Add Team Member" form -->
+    <div class="mb-3 text-right">
+        <a href="{% url 'add_team_member' %}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Add Team Member
+        </a>
+    </div>
+
+    <table class="table table-bordered table-striped table-hover shadow-sm">
+        <thead class="table-primary">
+            <tr>
+                <th>Name</th>
+                <th>Member ID</th>
+                <th>Phone Number</th>
+                <th>Image</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for team_member in team_members %}
+            <tr>
+                <td>{{ team_member.name }}</td>
+                <td>{{ team_member.member_id }}</td>
+                <td>{{ team_member.phone_number }}</td>
+                <td><img src="{{ team_member.image.url }}" alt="{{ team_member.name }}" width="50"></td>
+                <td>
+                    <a href="{% url 'edit_team_member' team_member.pk %}" class="btn btn-warning btn-sm">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+
+                    <!-- Delete Button -->
+                    <form method="POST" style="display:inline-block;">
+                        {% csrf_token %}
+                        <input type="hidden" name="delete_team_member" value="{{ team_member.id }}">
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
