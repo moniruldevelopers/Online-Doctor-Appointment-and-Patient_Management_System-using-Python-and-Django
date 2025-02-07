@@ -230,12 +230,19 @@ class Appointment(models.Model):
     def __str__(self):
         return f"Appointment #{self.serial_number}: Patient ID {self.patient_unique_id} with Dr. {self.doctor.full_name} on {self.appointment_date}"
 
-class OnlineAppointment(models.Model):
-    department = models.ForeignKey('Department', on_delete=models.CASCADE)
-    doctor = models.ForeignKey('DoctorProfile', on_delete=models.CASCADE)
-    patient_name = models.CharField(max_length=255)
-    phone_number = models.CharField(
-        max_length=11,        
+
+
+class PublicOnlineAppointment(models.Model):
+    appointment_id = models.AutoField(primary_key=True)
+    department = models.ForeignKey('Department', on_delete=models.CASCADE, related_name='appointments')
+    doctor = models.ForeignKey(
+        'DoctorProfile',
+        on_delete=models.CASCADE,
+        related_name='public_online_appointments'  # Unique related_name
+    )
+    patient_full_name = models.CharField(max_length=100)
+    patient_phone = models.CharField(
+        max_length=11,
         validators=[
             RegexValidator(
                 regex=r'^01[3-9]\d{8}$',
@@ -244,9 +251,8 @@ class OnlineAppointment(models.Model):
             )
         ]
     )
-
-    age = models.PositiveIntegerField()
-    appointment_date = models.DateTimeField()
+    patient_email = models.EmailField()
+    appointment_date = models.DateField()  
 
     def __str__(self):
-        return f"{self.patient_name} - {self.doctor} ({self.appointment_date})"
+        return f"Appointment {self.appointment_id} - {self.patient_full_name}"

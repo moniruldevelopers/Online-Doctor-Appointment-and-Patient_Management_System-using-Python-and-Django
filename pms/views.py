@@ -22,11 +22,14 @@ from django.template.loader import render_to_string
 from django.db.models import Max
 from datetime import datetime
 from django.http import HttpResponseForbidden
-
 from dateutil.relativedelta import relativedelta
-from datetime import datetime
 import xlwt
 import csv
+from django.utils.dateparse import parse_date
+from dateutil.relativedelta import relativedelta
+
+
+
 # Function to check if the user is a superuser
 def superuser_required(user):
     return user.is_superuser
@@ -241,19 +244,11 @@ def home(request):
     doctors = DoctorProfile.objects.all().order_by('-id')[:2]  # Get last 2 added doctors
     carousels = Carousel.objects.all().order_by('-id')[:3]  # Get last 3 added carousel items
 
-    if request.method == 'POST':
-        form = OnlineAppointmentForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('success')  # Redirect to the success page
-    else:
-        form = OnlineAppointmentForm()
 
     departments = Department.objects.all()
     
     context = {
-        'site_info': site_info,
-        'form': form,
+        'site_info': site_info,       
         'doctors': doctors,  # Pass only the last two doctors
         'carousels': carousels,  # Pass last 3 carousel items
     }
@@ -918,48 +913,59 @@ def get_patient_details(request):
 
 
 
-def export_to_excel(appointments, department_name, doctor_name):
+
+
+def export_to_excel(appointments, department_name, doctor_name, selected_date):
     """
-    Utility function to export appointments to a CSV file.
+    Export filtered appointments to a CSV file.
     """
-    # Construct the file name
-    file_name = f"{department_name}_{doctor_name}_appointment_list.csv".replace(" ", "_")
+    file_date = selected_date if selected_date else "all_dates"
+    # Update file name to include doctor and department names
+    file_name = f"{doctor_name}_{department_name}_appointments_{file_date}.csv".replace(" ", "_")
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="{file_name}"'
 
     writer = csv.writer(response)
-    writer.writerow(['Serial Number', 'Patient ID', 'Patient Phone', 'Patient Age', 'Doctor Name', 'Department'])
+    writer.writerow(['Serial Number', 'Patient ID', 'Patient Phone', 'Patient Age', 'Doctor Name', 'Department', 'Date'])
 
     for appointment in appointments:
-        writer.writerow([
+        writer.writerow([ 
             appointment.serial_number,
             appointment.patient_unique_id,
             appointment.patient.phone_number,
             getattr(appointment, 'patient_age', 'N/A'),
             appointment.doctor.full_name,
             appointment.doctor.department.name,
+            appointment.appointment_date.strftime('%Y-%m-%d'),
         ])
 
     return response
 
 
-def appointment_list(request):
-    doctor_filter = request.GET.get('doctor')  # Get the selected doctor filter value
-    appointments = Appointment.objects.select_related('patient', 'doctor', 'doctor__department')
-    filtered_doctor_name = "All Doctors"
-    department_name = "All Departments"
 
-    # Filter appointments based on the selected doctor
+
+
+
+def appointment_list(request):
+    doctor_filter = request.GET.get('doctor')
+    selected_date = request.GET.get('date')
+
+    # Ensure selected_date is always a valid string before parsing
+    if selected_date:
+        selected_date = parse_date(selected_date)  # Convert string to date object
+    else:
+        selected_date = datetime.today().date()  # Default to today's date
+
+    appointments = Appointment.objects.select_related('patient', 'doctor', 'doctor__department')
+
     if doctor_filter:
         appointments = appointments.filter(doctor__id=doctor_filter)
-        # Retrieve the selected doctor's name and department
-        doctor = DoctorProfile.objects.filter(id=doctor_filter).first()
-        if doctor:
-            filtered_doctor_name = doctor.full_name
-            department_name = doctor.department.name if doctor.department else "Unknown Department"
 
-    # Calculate age for each patient's appointment
+    # Filter appointments by the selected date (default to today)
+    appointments = appointments.filter(appointment_date__date=selected_date)
+
+    # Calculate patient age
     today = datetime.today().date()
     for appointment in appointments:
         if appointment.patient.date_of_birth:
@@ -976,16 +982,51 @@ def appointment_list(request):
         else:
             appointment.patient_age = "Age not available"
 
-    # Get distinct list of doctors for the dropdown
+    # Handle export
+    if 'export' in request.GET:
+        doctor = DoctorProfile.objects.filter(id=doctor_filter).first() if doctor_filter else None
+        doctor_name = doctor.full_name if doctor else "All_Doctors"
+        department_name = doctor.department.name if doctor else "All_Departments"
+        return export_to_excel(appointments, department_name, doctor_name, selected_date)
+
     doctors = DoctorProfile.objects.all()
 
-    # Handle export functionality
-    if 'export' in request.GET:
-        return export_to_excel(appointments, department_name, filtered_doctor_name)
+    # Show a message indicating which doctor is selected for which date
+    filtered_doctor_name = "All Doctors"
+    if doctor_filter:
+        doctor = DoctorProfile.objects.filter(id=doctor_filter).first()
+        if doctor:
+            filtered_doctor_name = doctor.full_name
+
+    filter_message = f"Showing appointments for {filtered_doctor_name} on {selected_date.strftime('%Y-%m-%d')}."
 
     return render(request, 'hospital/appointment_list.html', {
         'appointments': appointments,
         'doctors': doctors,
         'doctor_filter': doctor_filter,
-        'filtered_doctor_name': filtered_doctor_name,  # Pass the filtered doctor's name
+        'selected_date': selected_date.strftime('%Y-%m-%d'),
+        'filter_message': filter_message,  # Send filter message to the template
     })
+
+
+
+
+
+def public_online_appointment_view(request):
+    form = PublicOnlineAppointmentForm(request.POST or None)
+
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Appointment booked successfully!")
+            form = PublicOnlineAppointmentForm()  # Reset the form after submission
+
+    return render(request, "public_online_appointment_form.html", {"form": form})
+
+
+def load_doctors(request):
+    department_id = request.GET.get('department')
+    doctors = DoctorProfile.objects.filter(department_id=department_id, is_active=True).values('id', 'full_name')
+    return JsonResponse(list(doctors), safe=False)
+
+

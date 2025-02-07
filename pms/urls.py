@@ -82,7 +82,9 @@ urlpatterns = [
     path('appointments/create/', create_appointment, name='create_appointment'),
     path('ajax/doctor-details/', get_doctor_details, name='get_doctor_details'),
     path('ajax/patient-details/', get_patient_details, name='get_patient_details'),
-    path('success/', success_page, name='success'),  # Success page URL
- 
+  
+    #online appointmnet
+    path("online-appointment/", public_online_appointment_view, name="public_online_appointment"),
+    path("load-doctors/", load_doctors, name="load_doctors"),
  
 ]

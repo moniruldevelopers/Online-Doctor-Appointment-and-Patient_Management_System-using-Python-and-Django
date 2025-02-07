@@ -149,21 +149,17 @@ class AppointmentForm(forms.ModelForm):
             
         }
 
-class OnlineAppointmentForm(forms.ModelForm):
+
+
+class PublicOnlineAppointmentForm(forms.ModelForm):
     class Meta:
-        model = OnlineAppointment
-        fields = ['patient_name', 'phone_number', 'age', 'department', 'doctor', 'appointment_date']
+        model = PublicOnlineAppointment
+        fields = ['department', 'doctor', 'patient_full_name', 'patient_phone', 'patient_email', 'appointment_date']
         widgets = {
-            'department': forms.Select(attrs={'class': 'form-select bg-light border-0', 'style': 'height: 55px;'}),
-            'doctor': forms.Select(attrs={'class': 'form-select bg-light border-0', 'style': 'height: 55px;'}),
-            'patient_name': forms.TextInput(attrs={'class': 'form-control bg-light border-0', 'placeholder': 'Patient Name', 'style': 'height: 55px;'}),
-            'phone_number': forms.TextInput(attrs={'class': 'form-control bg-light border-0', 'placeholder': 'Phone Number', 'style': 'height: 55px;'}),
-            'age': forms.NumberInput(attrs={'class': 'form-control bg-light border-0', 'placeholder': 'Age', 'style': 'height: 55px;'}),
-            'appointment_date': forms.TextInput(attrs={
-                'class': 'form-control bg-light border-0 datetimepicker-input',
-                'placeholder': 'Appointment Date and Time',
-                'style': 'height: 55px;',
-                'data-target': '#appointment_date',
-                'data-toggle': 'datetimepicker',
-            }),
+            'appointment_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'department': forms.Select(attrs={'class': 'form-control'}),
+            'doctor': forms.Select(attrs={'class': 'form-control'}),
+            'patient_full_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'patient_phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'patient_email': forms.EmailInput(attrs={'class': 'form-control'}),
         }
