@@ -3,6 +3,8 @@ from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 import uuid
+from datetime import date
+
 
 class SiteInfo(models.Model):
     site_name = models.CharField(max_length=20)
@@ -199,8 +201,26 @@ class PatientProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def calculate_age(self):
+        from datetime import date
+        today = date.today()
+        age_in_years = today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
+        age_in_months = today.month - self.date_of_birth.month
+        if age_in_months < 0:
+            age_in_months += 12
+        age_in_days = (today - self.date_of_birth).days
+        
+        return {
+            'years': age_in_years,
+            'months': age_in_months,
+            'days': age_in_days
+        }
+
+
     def __str__(self):
         return f"{self.full_name} (ID: {self.patient_id})"
+    
+    
 
     def save(self, *args, **kwargs):
         # Auto-generate patient ID if not already set
@@ -218,7 +238,8 @@ class Appointment(models.Model):
     patient_unique_id = models.CharField(max_length=10, editable=False)  # Renamed field
     doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE, related_name='appointments')
    
-    appointment_date = models.DateTimeField()  
+    appointment_date = models.DateTimeField() 
+   
 
     def save(self, *args, **kwargs):
         # Auto-set patient_unique_id when the patient is selected
@@ -252,14 +273,24 @@ class PublicOnlineAppointment(models.Model):
         ]
     )
     patient_email = models.EmailField()
-    appointment_date = models.DateField()  
+    appointment_date = models.DateField()
+    birth_date = models.DateField()  # Added birth_date field
+
+    # In the PublicOnlineAppointment model:
+    def calculate_age(self):
+        today = date.today()
+        age_years = today.year - self.birth_date.year - (
+            (today.month, today.day) < (self.birth_date.month, self.birth_date.day)
+        )
+        age_months = (today.month - self.birth_date.month) % 12
+        age_days = (today - self.birth_date.replace(year=today.year)).days if today.month == self.birth_date.month else 0
+
+        return {
+            "years": age_years,
+            "months": age_months,
+            "days": max(age_days, 0)
+        }
+
 
     def __str__(self):
         return f"Appointment {self.appointment_id} - {self.patient_full_name}"
-    
-
-
-
-
-
-    

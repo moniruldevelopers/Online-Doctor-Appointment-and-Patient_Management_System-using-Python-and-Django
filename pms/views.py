@@ -15,12 +15,12 @@ from django.db.models import Q
 from django.http import JsonResponse
 from .forms import GroupForm
 from authportal.forms import *
-from datetime import date
+
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.db.models import Max
-from datetime import datetime
+
 from django.http import HttpResponseForbidden
 from dateutil.relativedelta import relativedelta
 import xlwt
@@ -29,6 +29,9 @@ from django.utils.dateparse import parse_date
 from dateutil.relativedelta import relativedelta
 import openpyxl
 from django.utils.timezone import now
+from django.utils.timezone import localtime, make_aware
+from django.utils.timezone import localtime, make_aware
+from datetime import datetime, date
 
 
 # Function to check if the user is a superuser
@@ -278,17 +281,30 @@ def patient_admin(request):
 
 
 
-#hospital section
 def hospital_admin(request):
-    site_info = SiteInfo.objects.first()  # Get the first (and only) instance
+    # Get the first (and only) instance of SiteInfo
+    site_info = SiteInfo.objects.first()
+
+    # Get today's date for active appointments filter
+    today = date.today()
+
+    # Get active appointments for today from both Appointment and PublicOnlineAppointment models
+    active_appointments = Appointment.objects.filter(appointment_date__date=today)
+    active_public_appointments = PublicOnlineAppointment.objects.filter(appointment_date=today)
+
+    # Calculate the total number of active appointments for today
+    total_active_appointments = active_appointments.count() + active_public_appointments.count()
+
+    # Get total count of all appointments (without date filter)
+    total_all_appointments = Appointment.objects.count() + PublicOnlineAppointment.objects.count()
+
     context = {
         'site_info': site_info,
+        'total_active_appointments': total_active_appointments,  # Total active appointments for today
+        'total_all_appointments': total_all_appointments,  # Total appointments of all time
     }
-    return render(request, 'hospital/hospital_home.html')
 
-
-
-
+    return render(request, 'hospital/hospital_home.html', context)
 
 
 
@@ -897,6 +913,9 @@ def create_appointment(request):
         form = AppointmentForm()
     return render(request, 'hospital/create_appointment.html', {'form': form})
 
+
+
+
 # AJAX to auto-populate department and patient phone
 def get_doctor_details(request):
     doctor_id = request.GET.get('doctor_id')
@@ -1014,16 +1033,25 @@ def appointment_list(request):
 
 
 def public_online_appointment_view(request):
-    form = PublicOnlineAppointmentForm(request.POST or None)
-
     if request.method == "POST":
+        form = PublicOnlineAppointmentForm(request.POST)
         if form.is_valid():
-            form.save()
+            appointment = form.save(commit=False)
+
+            # Calculate age from birth_date
+            birth_date = form.cleaned_data['birth_date']
+            today = date.today()
+            age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+            
+            appointment.age = age  # Set calculated age
+            appointment.save()
+
             messages.success(request, "Appointment booked successfully!")
-            form = PublicOnlineAppointmentForm()  # Reset the form after submission
+            return redirect('public_online_appointment')  # Redirect to prevent resubmission
+    else:
+        form = PublicOnlineAppointmentForm()
 
     return render(request, "public_online_appointment_form.html", {"form": form})
-
 
 def load_doctors(request):
     department_id = request.GET.get('department')
@@ -1151,37 +1179,139 @@ def export_public_online_appointments_to_excel(request):
 
 
 
+# def active_appointments(request):
+#     selected_doctor = request.GET.get('doctor', '')
+#     selected_date = request.GET.get('date', '') or str(date.today())  # Default to today's date if no filter applied
+    
+#     # Ensure that selected_date is in the correct format (YYYY-MM-DD)
+#     if selected_date:
+#         try:
+#             selected_date_obj = date.fromisoformat(selected_date)  # Convert to a date object to ensure valid date format
+#         except ValueError:
+#             selected_date_obj = date.today()  # Fallback to today's date if the format is invalid
+#     else:
+#         selected_date_obj = date.today()
+
+#     # Get all doctors to populate the dropdown
+#     doctors = DoctorProfile.objects.values_list('id', 'full_name')
+
+#     # Fetch Appointments from both models
+#     appointments = Appointment.objects.select_related('patient', 'doctor').filter(appointment_date__date=selected_date_obj)  # Filter by selected date
+#     public_appointments = PublicOnlineAppointment.objects.select_related('doctor', 'department').filter(appointment_date=selected_date_obj)  # Filter by selected date
+
+#     # Apply doctor filter
+#     if selected_doctor:
+#         appointments = appointments.filter(doctor_id=selected_doctor)
+#         public_appointments = public_appointments.filter(doctor_id=selected_doctor)
+
+#     # Merge both querysets into a single list
+#     merged_appointments = []
+
+#     for appointment in appointments:
+#         age = appointment.patient.calculate_age()  # This should return a dictionary
+#         merged_appointments.append({
+#             'id': appointment.serial_number,
+#             'patient_id': appointment.patient.patient_id,  # Display patient_id for Appointment model
+#             'department': appointment.doctor.department.name if hasattr(appointment.doctor, 'department') else 'N/A',
+#             'doctor': appointment.doctor.full_name,
+#             'patient_name': appointment.patient.full_name,
+#             'age': f"{age['years']} years, {age['months']} months, {age['days']} days",  # Format age here
+#             'phone': appointment.patient.phone_number,
+#             'email': appointment.patient.user.email,
+#             'date': appointment.appointment_date.date(),
+#         })
+
+#     for appointment in public_appointments:
+#         age = appointment.calculate_age()  # This should return a dictionary as well
+#         merged_appointments.append({
+#             'id': appointment.appointment_id,
+#             'patient_id': appointment.patient_full_name,  # Fallback if no patient_id exists, you can adjust as needed
+#             'department': appointment.department.name,
+#             'doctor': appointment.doctor.full_name,
+#             'patient_name': appointment.patient_full_name,
+#             'age': f"{age['years']} years, {age['months']} months, {age['days']} days",  # Format age here
+#             'phone': appointment.patient_phone,
+#             'email': appointment.patient_email,
+#             'date': appointment.appointment_date,
+#         })
+
+#     # Sort by appointment date (in case of future updates to this logic)
+#     merged_appointments.sort(key=lambda x: x['date'])
+
+#     return render(request, 'hospital/active_appointments.html', {
+#         'appointments': merged_appointments,
+#         'doctors': doctors,
+#         'selected_doctor': selected_doctor,
+#         'appointment_date': selected_date_obj  # Ensure the date is passed as a date object
+#     })
 def active_appointments(request):
-    doctor_id = request.GET.get('doctor')
-    appointment_date = request.GET.get('date')
+    selected_doctor = request.GET.get('doctor', '')
+    selected_date = request.GET.get('date', '')  # Get selected date from request
 
-    # Get today's date
-    today = now().date()
+    # Convert selected_date to a valid date object
+    if selected_date:
+        try:
+            selected_date_obj = datetime.strptime(selected_date, '%Y-%m-%d').date()
+        except ValueError:
+            selected_date_obj = date.today()
+    else:
+        selected_date_obj = date.today()
 
-    # Start with all future appointments
-    appointments = Appointment.objects.filter(appointment_date__date__gte=today)
-    online_appointments = PublicOnlineAppointment.objects.filter(appointment_date__gte=today)
+    # Get all doctors for dropdown
+    doctors = DoctorProfile.objects.values_list('id', 'full_name')
+
+    # Filter Appointments (assuming appointment_date is a DateTimeField)
+    appointments = Appointment.objects.filter(
+        appointment_date__date=selected_date_obj
+    ).select_related('patient', 'doctor')
+
+    # Filter PublicOnlineAppointments (appointment_date is a DateField, so no __date lookup needed)
+    public_appointments = PublicOnlineAppointment.objects.filter(
+        appointment_date=selected_date_obj
+    ).select_related('doctor', 'department')
 
     # Apply doctor filter
-    if doctor_id:
-        appointments = appointments.filter(doctor_id=doctor_id)
-        online_appointments = online_appointments.filter(doctor_id=doctor_id)
+    if selected_doctor:
+        appointments = appointments.filter(doctor_id=selected_doctor)
+        public_appointments = public_appointments.filter(doctor_id=selected_doctor)
 
-    # Apply date filter
-    if appointment_date:
-        appointments = appointments.filter(appointment_date__date=appointment_date)
-        online_appointments = online_appointments.filter(appointment_date=appointment_date)
+    # Merge both querysets
+    merged_appointments = []
 
-    # Combine results
-    all_appointments = list(appointments) + list(online_appointments)
+    for appointment in appointments:
+        age = appointment.patient.calculate_age()
+        merged_appointments.append({
+            'id': appointment.serial_number,
+            'patient_id': appointment.patient.patient_id,
+            'department': appointment.doctor.department.name if hasattr(appointment.doctor, 'department') else 'N/A',
+            'doctor': appointment.doctor.full_name,
+            'patient_name': appointment.patient.full_name,
+            'age': f"{age['years']} years, {age['months']} months, {age['days']} days",
+            'phone': appointment.patient.phone_number,
+            'email': appointment.patient.user.email,
+            'date': localtime(appointment.appointment_date).date(),  # Convert to local date
+        })
 
-    # Get a list of doctors for filtering
-    doctors = set([(appt.doctor.id, appt.doctor.full_name) for appt in Appointment.objects.all()] +
-                  [(appt.doctor.id, appt.doctor.full_name) for appt in PublicOnlineAppointment.objects.all()])
+    for appointment in public_appointments:
+        age = appointment.calculate_age()
+        merged_appointments.append({
+            'id': appointment.appointment_id,
+            'patient_id': appointment.patient_full_name,
+            'department': appointment.department.name,
+            'doctor': appointment.doctor.full_name,
+            'patient_name': appointment.patient_full_name,
+            'age': f"{age['years']} years, {age['months']} months, {age['days']} days",
+            'phone': appointment.patient_phone,
+            'email': appointment.patient_email,
+            'date': appointment.appointment_date,  # No need for conversion since it's already a DateField
+        })
+
+    # Sort by appointment date
+    merged_appointments.sort(key=lambda x: x['date'])
 
     return render(request, 'hospital/active_appointments.html', {
-        'appointments': all_appointments,
-        'doctors': sorted(doctors, key=lambda x: x[1]),  # Sort by doctor name
-        'selected_doctor': doctor_id,
-        'appointment_date': appointment_date,
+        'appointments': merged_appointments,
+        'doctors': doctors,
+        'selected_doctor': selected_doctor,
+        'appointment_date': selected_date_obj
     })

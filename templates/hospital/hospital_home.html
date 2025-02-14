@@ -26,7 +26,7 @@
             <div class="card bg-primary text-white mb-4">
                 <div class="card-body">
                     <h5>Total Patients</h5>
-                    <h2>1,250</h2>
+                    <h2>{{ total_all_appointments }}</h2>
                 </div>
             </div>
         </div>
@@ -36,7 +36,7 @@
                 <a href="{% url 'active_appointments' %}" style="text-decoration: none; color:white;">
                     <div class="card-body">
                         <h5>Active Appointments</h5>
-                        <h2>320</h2>
+                        <h2>{{ total_active_appointments }}</h2>
                     </div>
                 </a>
             </div>

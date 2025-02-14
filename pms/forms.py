@@ -149,12 +149,16 @@ class AppointmentForm(forms.ModelForm):
             
         }
 
-
-
 class PublicOnlineAppointmentForm(forms.ModelForm):
+    birth_date = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        label="Date of Birth",
+        required=True
+    )
+
     class Meta:
         model = PublicOnlineAppointment
-        fields = ['department', 'doctor', 'patient_full_name', 'patient_phone', 'patient_email', 'appointment_date']
+        fields = ['department', 'doctor', 'patient_full_name','birth_date', 'patient_phone', 'patient_email', 'appointment_date']
         widgets = {
             'appointment_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-control'}),
@@ -163,3 +167,22 @@ class PublicOnlineAppointmentForm(forms.ModelForm):
             'patient_phone': forms.TextInput(attrs={'class': 'form-control'}),
             'patient_email': forms.EmailInput(attrs={'class': 'form-control'}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        birth_date = cleaned_data.get('birth_date')
+        appointment_date = cleaned_data.get('appointment_date')
+
+        if birth_date and appointment_date:
+            if birth_date >= appointment_date:
+                raise forms.ValidationError("Date of Birth must be before the Appointment Date.")
+
+        # Calculate age and validate it
+        today = date.today()
+        age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+        
+        if age < 0 or age > 150:  # Ensure a valid age range
+            raise forms.ValidationError("Invalid birth date. Please enter a valid date.")
+
+        cleaned_data['age'] = age  # Store age for later use
+        return cleaned_data
