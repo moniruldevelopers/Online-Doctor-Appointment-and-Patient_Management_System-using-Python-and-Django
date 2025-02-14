@@ -27,11 +27,111 @@
             
             <!-- Spacer -->
             <div class="ms-auto"></div>
-            
+
+            <button class="btn btn-success me-3 d-none d-md-block" data-bs-toggle="modal" data-bs-target="#calculatorModal" style="box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);">
+                <i class="fas fa-calculator me-2"></i>Calculator
+            </button>
+            <!-- Clock with Date and Time -->
+            <button class="btn btn-secondary me-3 d-none d-md-block d-flex align-items-center" style="box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); font-weight: bold;">
+                <i class="fas fa-calendar-alt me-2"></i>
+                <span id="currentDate" class="me-3"></span>
+                <i class="fas fa-clock me-2"></i>
+                <span id="currentTime"></span>
+            </button>
             <!-- Navbar-->
-            <button class="btn"></button>
+            <a href="{% url 'home' %}" class="btn btn-primary me-3 d-none d-md-block">View Website</a>
+
+             <!-- Profile Dropdown -->
+    {% if user.is_authenticated %}
+    <div class="nv dropdown me-3 d-none d-md-block">
+        <button class="btn btn-warning dropdown-toggle" id="UserDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user-circle"></i> {{ user.username }}
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="{% url 'admin_change_password' %}"><i class="fas fa-key me-2"></i> Change Password</a></li>
+            <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+        </ul>
+    </div>
+    {% else %}
+    <a class="btn btn-success ms-3 me-3" href="{% url 'login' %}">
+        <i class="fas fa-sign-in-alt"></i> Login
+    </a>
+    {% endif %}
         </nav>
+        <!-- Calculator Modal -->
+                <!-- Calculator Modal -->
+                <div class="modal fade" id="calculatorModal" tabindex="-1" aria-labelledby="calculatorModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="calculatorModalLabel">Calculator</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="calculator">
+                                    <input type="text" id="calcDisplay" class="form-control mb-3 text-end" readonly />
+                                    <div class="row">
+                                        <!-- Calculator Buttons -->
+                                        <div class="col-3 mb-2">
+                                            <button class="btn btn-light w-100" style="box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4); font-weight: bold;" onclick="appendCalc('7')">7</button>
+                                        </div>
+                                        <div class="col-3 mb-2">
+                                            <button class="btn btn-light w-100" style="box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4); font-weight: bold;" onclick="appendCalc('8')">8</button>
+                                        </div>
+                                        <div class="col-3 mb-2">
+                                            <button class="btn btn-light w-100" style="box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4); font-weight: bold;" onclick="appendCalc('9')">9</button>
+                                        </div>
+                                        <div class="col-3 mb-2">
+                                            <button class="btn btn-warning w-100" style="box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4); font-weight: bold;" onclick="appendCalc('/')">/</button>
+                                        </div>
+                                        <div class="col-3 mb-2">
+                                            <button class="btn btn-light w-100" style="box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4); font-weight: bold;" onclick="appendCalc('4')">4</button>
+                                        </div>
+                                        <div class="col-3 mb-2">
+                                            <button class="btn btn-light w-100" style="box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4); font-weight: bold;" onclick="appendCalc('5')">5</button>
+                                        </div>
+                                        <div class="col-3 mb-2">
+                                            <button class="btn btn-light w-100" style="box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4); font-weight: bold;" onclick="appendCalc('6')">6</button>
+                                        </div>
+                                        <div class="col-3 mb-2">
+                                            <button class="btn btn-warning w-100" style="box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4); font-weight: bold;" onclick="appendCalc('*')">*</button>
+                                        </div>
+                                        <div class="col-3 mb-2">
+                                            <button class="btn btn-light w-100" style="box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4); font-weight: bold;" onclick="appendCalc('1')">1</button>
+                                        </div>
+                                        <div class="col-3 mb-2">
+                                            <button class="btn btn-light w-100" style="box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4); font-weight: bold;" onclick="appendCalc('2')">2</button>
+                                        </div>
+                                        <div class="col-3 mb-2">
+                                            <button class="btn btn-light w-100" style="box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4); font-weight: bold;" onclick="appendCalc('3')">3</button>
+                                        </div>
+                                        <div class="col-3 mb-2">
+                                            <button class="btn btn-warning w-100" style="box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4); font-weight: bold;" onclick="appendCalc('-')">-</button>
+                                        </div>
+                                        <div class="col-3 mb-2">
+                                            <button class="btn btn-light w-100" style="box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4); font-weight: bold;" onclick="appendCalc('0')">0</button>
+                                        </div>
+                                        <div class="col-3 mb-2">
+                                            <button class="btn btn-light w-100" style="box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4); font-weight: bold;" onclick="appendCalc('.')">.</button>
+                                        </div>
+                                        <div class="col-3 mb-2">
+                                            <button class="btn btn-danger w-100" style="box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4); font-weight: bold;" onclick="clearCalc()">C</button>
+                                        </div>
+                                        <div class="col-3 mb-2">
+                                            <button class="btn btn-warning w-100" style="box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4); font-weight: bold;" onclick="appendCalc('+')">+</button>
+                                        </div>
+                                        <div class="col-12">
+                                            <button class="btn btn-success w-100" style="box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4); font-weight: bold;" onclick="calculateResult()">=</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
         
+
+
         <div id="layoutSidenav">
             <div id="layoutSidenav_nav">
                 <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
@@ -72,8 +172,38 @@
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
         <script src="{% static 'admin_panel/js/datatables-simple-demo.js' %}"></script>
 
+        <script>
+            function updateClock() {
+                const now = new Date();
+                const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+                const formattedDate = now.toLocaleDateString(undefined, options);
+                const formattedTime = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
+                document.getElementById('currentDate').textContent = formattedDate;
+                document.getElementById('currentTime').textContent = formattedTime;
+            }
 
-        
+            // Update the clock every second
+            setInterval(updateClock, 1000);
+            updateClock();
+
+            // Calculator Functions
+            let calcDisplay = document.getElementById("calcDisplay");
+            function appendCalc(value) {
+                calcDisplay.value += value;
+            }
+
+            function clearCalc() {
+                calcDisplay.value = "";
+            }
+
+            function calculateResult() {
+                try {
+                    calcDisplay.value = eval(calcDisplay.value);
+                } catch {
+                    calcDisplay.value = "Error";
+                }
+            }
+        </script>
     </body>
 </html>
