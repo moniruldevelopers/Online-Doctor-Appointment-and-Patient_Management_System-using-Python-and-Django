@@ -86,5 +86,17 @@ urlpatterns = [
     #online appointmnet
     path("online-appointment/", public_online_appointment_view, name="public_online_appointment"),
     path("load-doctors/", load_doctors, name="load_doctors"),
- 
+
+
+    # public online appointment
+    path('public-appointments/', public_online_appointment_list, name='public_online_appointment_list'),
+    path('public-appointments/delete/<int:appointment_id>/', delete_public_online_appointment, name='delete_public_online_appointment'),
+    path('public-appointments/export/', export_public_online_appointments_to_excel, name='export_public_online_appointments_to_excel'),
+   
+    # dashboard
+    path('active-appointments/', active_appointments, name='active_appointments'),
+
+
+
+
 ]

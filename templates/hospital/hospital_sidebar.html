@@ -2,14 +2,14 @@
     <div class="nav">
         <!-- Core Section -->
         <div class="sb-sidenav-menu-heading">Core</div>
-        <a class="nav-link" href="">
+        <a class="nav-link" href="{% url 'hospital_admin' %}">
             <div class="sb-nav-link-icon"><i class="fas fa-hospital"></i></div>
             Hospital Dashboard
         </a>
-        <a class="nav-link" href="">
+        {% comment %} <a class="nav-link" href="">
             <div class="sb-nav-link-icon"><i class="fas fa-hospital"></i></div>
             Assign Patient
-        </a>
+        </a> {% endcomment %}
         <!-- Core Section -->
       
 
@@ -23,8 +23,9 @@
     </a>
     <div class="collapse" id="appointmentCollapse" aria-labelledby="headingAppointments" data-bs-parent="#sidenavAccordion">
         <nav class="sb-sidenav-menu-nested nav">
-            <a class="nav-link" href="{% url 'appointment_list' %}">Appointment List</a>
-            <a class="nav-link" href="">Manage Appointments</a>
+            <a class="nav-link" href="{% url 'appointment_list' %}">Create Appointment List</a>
+            <a class="nav-link" href="{% url 'public_online_appointment_list' %}">Online Appointment List</a>
+
         </nav>
     </div>
     

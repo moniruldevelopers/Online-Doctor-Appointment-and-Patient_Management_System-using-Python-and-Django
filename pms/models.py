@@ -256,3 +256,10 @@ class PublicOnlineAppointment(models.Model):
 
     def __str__(self):
         return f"Appointment {self.appointment_id} - {self.patient_full_name}"
+    
+
+
+
+
+
+    

@@ -1,0 +1,68 @@
+{% extends 'hospital/hospital_base.html' %}
+{% block content %}
+
+<div class="container mt-5 shadow-lg p-3 mb-5 bg-white rounded">
+    <h1 class="text-center mb-4">Appointments</h1>
+
+    <form method="get" class="form-inline justify-content-center mb-4">
+        <div class="form-group mr-3">
+            <label for="doctor" class="mr-2">Doctor:</label>
+            <select name="doctor" id="doctor" class="form-control">
+                <option value="">All</option>
+                {% for id, name in doctors %}
+                <option value="{{ id }}" {% if selected_doctor == id|stringformat:"s" %}selected{% endif %}>
+                    {{ name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group mr-3">
+            <label for="date" class="mr-2">Date:</label>
+            <input type="date" name="date" id="date" class="form-control" value="{% if appointment_date %}{{ appointment_date|date:'Y-m-d' }}{% endif %}">
+        </div>
+        <br>
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="{% url 'export_public_online_appointments_to_excel' %}?doctor={{ selected_doctor }}&date={{ appointment_date|date:'Y-m-d' }}" class="btn btn-success ml-3">Export to CSV</a>
+        <button type="button" onclick="window.print()" class="btn btn-info ml-3">Print</button>
+    </form>
+
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Department</th>
+                <th>Doctor</th>
+                <th>Patient Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appointment in appointments %}
+            <tr>
+                <td>{{ appointment.appointment_id }}</td>
+                <td>{{ appointment.department.name }}</td>
+                <td>{{ appointment.doctor.full_name }}</td>
+                <td>{{ appointment.patient_full_name }}</td>
+                <td>{{ appointment.patient_phone }}</td>
+                <td>{{ appointment.patient_email }}</td>
+                <td>{{ appointment.appointment_date }}</td>
+                <td>
+                    <form action="{% url 'delete_public_online_appointment' appointment.appointment_id %}" method="post" style="display: inline-block;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center">No appointments found for the selected filters.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

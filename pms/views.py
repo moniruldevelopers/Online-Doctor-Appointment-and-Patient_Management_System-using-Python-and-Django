@@ -27,7 +27,8 @@ import xlwt
 import csv
 from django.utils.dateparse import parse_date
 from dateutil.relativedelta import relativedelta
-
+import openpyxl
+from django.utils.timezone import now
 
 
 # Function to check if the user is a superuser
@@ -1030,3 +1031,157 @@ def load_doctors(request):
     return JsonResponse(list(doctors), safe=False)
 
 
+
+
+
+
+
+
+
+
+
+def public_online_appointment_list(request):
+    # Get filter parameters
+    doctor = request.GET.get('doctor')
+    appointment_date = request.GET.get('date')
+
+    # Validate and parse the date
+    if appointment_date:
+        appointment_date = parse_date(appointment_date)
+        if not appointment_date:
+            messages.error(request, "Invalid date format. Please use YYYY-MM-DD.")
+            appointment_date = date.today()
+    else:
+        appointment_date = date.today()
+
+    # Filter appointments
+    appointments = PublicOnlineAppointment.objects.filter(appointment_date=appointment_date)
+    if doctor:
+        appointments = appointments.filter(doctor_id=doctor)
+
+    # Get distinct doctors for the filter
+    doctors = PublicOnlineAppointment.objects.values_list('doctor__id', 'doctor__full_name').distinct()
+
+    return render(request, 'patient/public_online_appointment_list.html', {
+        'appointments': appointments,
+        'doctors': doctors,
+        'appointment_date': appointment_date,
+        'selected_doctor': doctor,
+    })
+
+
+def delete_public_online_appointment(request, appointment_id):
+    appointment = PublicOnlineAppointment.objects.filter(appointment_id=appointment_id).first()
+    if appointment:
+        appointment.delete()
+        messages.success(request, "Appointment deleted successfully!")
+    else:
+        messages.error(request, "Appointment not found!")
+    return redirect('public_online_appointment_list')
+
+# Export appointments to an Excel (XLSX) file
+def export_public_online_appointments_to_excel(request):
+    doctor_id = request.GET.get('doctor')
+    appointment_date_str = request.GET.get('date')  # Get date as string
+
+    # Convert date string to date object
+    if appointment_date_str:
+        try:
+            appointment_date = date.fromisoformat(appointment_date_str)
+        except ValueError:
+            messages.error(request, "Invalid date format. Please use YYYY-MM-DD.")
+            return redirect('public_online_appointment_list')
+    else:
+        appointment_date = None
+
+    # Start with all appointments
+    appointments = PublicOnlineAppointment.objects.all()
+
+    # Apply filters
+    doctor_name = "All_Doctors"
+    department_name = "All_Departments"
+
+    if doctor_id:
+        try:
+            doctor_id = int(doctor_id)
+            appointments = appointments.filter(doctor_id=doctor_id)
+            doctor = PublicOnlineAppointment.objects.filter(doctor_id=doctor_id).first()
+            if doctor:
+                doctor_name = doctor.doctor.full_name
+                department_name = doctor.department.name
+        except ValueError:
+            pass
+
+    if appointment_date:
+        appointments = appointments.filter(appointment_date=appointment_date)
+
+    # Create Excel workbook
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Appointments"
+
+    # Header row
+    headers = ['ID', 'Department', 'Doctor', 'Patient Name', 'Phone', 'Email', 'Date']
+    ws.append(headers)
+
+    # Data rows
+    for appointment in appointments:
+        ws.append([
+            appointment.appointment_id,
+            appointment.department.name,  
+            appointment.doctor.full_name, 
+            appointment.patient_full_name,
+            appointment.patient_phone,
+            appointment.patient_email,
+            appointment.appointment_date,
+        ])
+
+    # Generate file name
+    filename = f"{doctor_name}_{department_name}.xlsx".replace(" ", "_")
+
+    # Create response
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    # Save workbook to response
+    wb.save(response)
+    return response
+
+
+
+
+
+def active_appointments(request):
+    doctor_id = request.GET.get('doctor')
+    appointment_date = request.GET.get('date')
+
+    # Get today's date
+    today = now().date()
+
+    # Start with all future appointments
+    appointments = Appointment.objects.filter(appointment_date__date__gte=today)
+    online_appointments = PublicOnlineAppointment.objects.filter(appointment_date__gte=today)
+
+    # Apply doctor filter
+    if doctor_id:
+        appointments = appointments.filter(doctor_id=doctor_id)
+        online_appointments = online_appointments.filter(doctor_id=doctor_id)
+
+    # Apply date filter
+    if appointment_date:
+        appointments = appointments.filter(appointment_date__date=appointment_date)
+        online_appointments = online_appointments.filter(appointment_date=appointment_date)
+
+    # Combine results
+    all_appointments = list(appointments) + list(online_appointments)
+
+    # Get a list of doctors for filtering
+    doctors = set([(appt.doctor.id, appt.doctor.full_name) for appt in Appointment.objects.all()] +
+                  [(appt.doctor.id, appt.doctor.full_name) for appt in PublicOnlineAppointment.objects.all()])
+
+    return render(request, 'hospital/active_appointments.html', {
+        'appointments': all_appointments,
+        'doctors': sorted(doctors, key=lambda x: x[1]),  # Sort by doctor name
+        'selected_doctor': doctor_id,
+        'appointment_date': appointment_date,
+    })
