@@ -1,0 +1,21 @@
+{% extends "hospital/hospital_base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Add Test Category</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Add Category</button>
+      
+        <a href="{% url 'test_category_list' %}" class="btn btn-secondary">Back</a>
+       
+    </form>
+    <br><br>
+</div>
+{% block extra_js %}
+<!-- Include CKEditor JS if not already -->
+{% load static %}
+<script src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+<script src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+{% endblock %}
+{% endblock %}

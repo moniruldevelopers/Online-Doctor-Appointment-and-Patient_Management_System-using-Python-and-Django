@@ -3,9 +3,7 @@ from django.contrib.auth.models import User
 from .models import *
 from django import forms
 from django.contrib.auth.models import Group
-
-
-
+from ckeditor.widgets import CKEditorWidget
 
 
 
@@ -186,3 +184,38 @@ class PublicOnlineAppointmentForm(forms.ModelForm):
 
         cleaned_data['age'] = age  # Store age for later use
         return cleaned_data
+    
+
+
+class DepartmentForm(forms.ModelForm):
+    class Meta:
+        model = Department
+        fields = ['name', 'description']
+
+class TestCategoryForm(forms.ModelForm):
+    class Meta:
+        model = TestCategory
+        fields = ['name', 'test_pad']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'test_pad': CKEditorWidget(),
+        }
+
+
+class ReportForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ['patient', 'test', 'report_content']
+        widgets = {
+            'patient': forms.Select(attrs={
+                'class': 'form-control select2',
+                'data-placeholder': 'Search Patient ID...'
+            }),
+            'test': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'report_content': forms.Textarea(attrs={
+                'class': 'form-control rich-text-editor',
+                'rows': '10'
+            })
+        }

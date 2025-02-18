@@ -51,6 +51,14 @@ urlpatterns = [
     path('doctors/<int:doctor_id>/', update_signle_doctor, name='update_doctor'),
     path('doctors/<int:doctor_id>/delete/', delete_doctor, name='delete_doctor'),
 
+
+    #  department
+
+    path('department/', department_list, name='department_list'),
+    path('department/create/', department_create, name='department_create'),
+    path('department/edit/<int:pk>/', department_edit, name='department_edit'),
+    path('department/delete/<int:pk>/', department_delete, name='department_delete'),
+
     #employee 
     path('admin_employee_register/',admin_employee_register, name='admin_employee_register'),
     path('user/<int:user_id>/employee-profile/', user_to_employee_profile, name='user_to_employee_profile'),
@@ -96,7 +104,17 @@ urlpatterns = [
     # dashboard
     path('active-appointments/', active_appointments, name='active_appointments'),
 
+    # test category
+    path('test-categories/', test_category_list, name='test_category_list'),
+    path('test-categories/add/', add_test_category, name='add_test_category'),
+    path('test-categories/edit/<int:pk>/', edit_test_category, name='edit_test_category'),
+    path('test-categories/delete/<int:pk>/', delete_test_category, name='delete_test_category'),
 
-
+    # medical report 
+    path('reports/', ReportListView.as_view(), name='report_list'),
+    path('reports/create/', report_create, name='report_create'),
+    path('reports/<int:pk>/edit/', report_edit, name='report_edit'),
+    path('reports/<int:pk>/delete/', report_delete, name='report_delete'),
+    path('api/test-category/<int:pk>/', get_test_pad, name='get_test_pad'),
 
 ]

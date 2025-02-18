@@ -33,6 +33,8 @@ from django.utils.timezone import localtime, make_aware
 from django.utils.timezone import localtime, make_aware
 from datetime import datetime, date
 
+from django.urls import reverse_lazy
+from django.views.generic import ListView
 
 # Function to check if the user is a superuser
 def superuser_required(user):
@@ -1179,71 +1181,8 @@ def export_public_online_appointments_to_excel(request):
 
 
 
-# def active_appointments(request):
-#     selected_doctor = request.GET.get('doctor', '')
-#     selected_date = request.GET.get('date', '') or str(date.today())  # Default to today's date if no filter applied
-    
-#     # Ensure that selected_date is in the correct format (YYYY-MM-DD)
-#     if selected_date:
-#         try:
-#             selected_date_obj = date.fromisoformat(selected_date)  # Convert to a date object to ensure valid date format
-#         except ValueError:
-#             selected_date_obj = date.today()  # Fallback to today's date if the format is invalid
-#     else:
-#         selected_date_obj = date.today()
 
-#     # Get all doctors to populate the dropdown
-#     doctors = DoctorProfile.objects.values_list('id', 'full_name')
 
-#     # Fetch Appointments from both models
-#     appointments = Appointment.objects.select_related('patient', 'doctor').filter(appointment_date__date=selected_date_obj)  # Filter by selected date
-#     public_appointments = PublicOnlineAppointment.objects.select_related('doctor', 'department').filter(appointment_date=selected_date_obj)  # Filter by selected date
-
-#     # Apply doctor filter
-#     if selected_doctor:
-#         appointments = appointments.filter(doctor_id=selected_doctor)
-#         public_appointments = public_appointments.filter(doctor_id=selected_doctor)
-
-#     # Merge both querysets into a single list
-#     merged_appointments = []
-
-#     for appointment in appointments:
-#         age = appointment.patient.calculate_age()  # This should return a dictionary
-#         merged_appointments.append({
-#             'id': appointment.serial_number,
-#             'patient_id': appointment.patient.patient_id,  # Display patient_id for Appointment model
-#             'department': appointment.doctor.department.name if hasattr(appointment.doctor, 'department') else 'N/A',
-#             'doctor': appointment.doctor.full_name,
-#             'patient_name': appointment.patient.full_name,
-#             'age': f"{age['years']} years, {age['months']} months, {age['days']} days",  # Format age here
-#             'phone': appointment.patient.phone_number,
-#             'email': appointment.patient.user.email,
-#             'date': appointment.appointment_date.date(),
-#         })
-
-#     for appointment in public_appointments:
-#         age = appointment.calculate_age()  # This should return a dictionary as well
-#         merged_appointments.append({
-#             'id': appointment.appointment_id,
-#             'patient_id': appointment.patient_full_name,  # Fallback if no patient_id exists, you can adjust as needed
-#             'department': appointment.department.name,
-#             'doctor': appointment.doctor.full_name,
-#             'patient_name': appointment.patient_full_name,
-#             'age': f"{age['years']} years, {age['months']} months, {age['days']} days",  # Format age here
-#             'phone': appointment.patient_phone,
-#             'email': appointment.patient_email,
-#             'date': appointment.appointment_date,
-#         })
-
-#     # Sort by appointment date (in case of future updates to this logic)
-#     merged_appointments.sort(key=lambda x: x['date'])
-
-#     return render(request, 'hospital/active_appointments.html', {
-#         'appointments': merged_appointments,
-#         'doctors': doctors,
-#         'selected_doctor': selected_doctor,
-#         'appointment_date': selected_date_obj  # Ensure the date is passed as a date object
-#     })
 def active_appointments(request):
     selected_doctor = request.GET.get('doctor', '')
     selected_date = request.GET.get('date', '')  # Get selected date from request
@@ -1315,3 +1254,141 @@ def active_appointments(request):
         'selected_doctor': selected_doctor,
         'appointment_date': selected_date_obj
     })
+
+
+
+
+
+
+
+
+# department 
+def department_list(request):
+    departments = Department.objects.all()
+    return render(request, 'hospital/department_list.html', {'departments': departments})
+
+def department_create(request):
+    if request.method == 'POST':
+        form = DepartmentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('department_list')
+    else:
+        form = DepartmentForm()
+    return render(request, 'hospital/department_form.html', {'form': form, 'title': 'Create Department'})
+
+def department_edit(request, pk):
+    department = get_object_or_404(Department, pk=pk)
+    if request.method == 'POST':
+        form = DepartmentForm(request.POST, instance=department)
+        if form.is_valid():
+            form.save()
+            return redirect('department_list')
+    else:
+        form = DepartmentForm(instance=department)
+    return render(request, 'hospital/department_form.html', {'form': form, 'title': 'Edit Department'})
+
+def department_delete(request, pk):
+    department = get_object_or_404(Department, pk=pk)
+    department.delete()
+    return redirect('department_list')
+
+
+
+
+
+
+
+# test category 
+# List and Add Test Categories
+def test_category_list(request):
+    categories = TestCategory.objects.all()
+    form = TestCategoryForm()
+    return render(request, 'hospital/report/test_category_list.html', {'categories': categories, 'form': form})
+
+# Add Test Category
+def add_test_category(request):
+    if request.method == "POST":
+        form = TestCategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Test Category added successfully.")
+            return redirect('test_category_list')
+    else:
+        form = TestCategoryForm()
+    return render(request, 'hospital/report/add_test_category.html', {'form': form})
+
+# Edit Test Category
+def edit_test_category(request, pk):
+    category = get_object_or_404(TestCategory, pk=pk)
+    if request.method == "POST":
+        form = TestCategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Test Category updated successfully.")
+            return redirect('test_category_list')
+    else:
+        form = TestCategoryForm(instance=category)
+    return render(request, 'hospital/report/edit_test_category.html', {'form': form})
+
+# Delete Test Category
+def delete_test_category(request, pk):
+    category = get_object_or_404(TestCategory, pk=pk)
+    if request.method == "POST":
+        category.delete()
+        messages.success(request, "Test Category deleted successfully.")
+        return redirect('test_category_list')
+    return redirect('test_category_list')
+
+
+
+
+
+
+class ReportListView(ListView):
+    model = Report
+    template_name = 'hospital/report/report_list.html'
+    context_object_name = 'reports'
+
+def report_create(request):
+    if request.method == 'POST':
+        form = ReportForm(request.POST)
+        if form.is_valid():
+            report = form.save()
+            messages.success(request, 'Medical report created successfully.')
+            return redirect('report_list')
+    else:
+        form = ReportForm()
+    return render(request, 'hospital/report/report_form.html', {'form': form})
+
+def report_edit(request, pk):
+    report = get_object_or_404(Report, pk=pk)
+    if request.method == 'POST':
+        form = ReportForm(request.POST, instance=report)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Medical report updated successfully.')
+            return redirect('report_list')
+    else:
+        form = ReportForm(instance=report)
+    return render(request, 'hospital/report/report_form.html', {'form': form, 'edit_mode': True})
+
+def report_delete(request, pk):
+    report = get_object_or_404(Report, pk=pk)
+    if request.method == 'POST':
+        report.delete()
+        messages.success(request, 'Medical report deleted successfully.')
+    return redirect('report_list')
+
+def search_patients(request):
+    search_term = request.GET.get('term', '')
+    patients = PatientProfile.objects.filter(patient_id__icontains=search_term)[:10]
+    results = [{'id': p.id, 'text': f"{p.patient_id} - {p.full_name}"} for p in patients]
+    return JsonResponse({'results': results})
+
+def get_test_pad(request, test_id):
+    try:
+        test = TestCategory.objects.get(pk=test_id)
+        return JsonResponse({'test_pad': test.test_pad})
+    except TestCategory.DoesNotExist:
+        return JsonResponse({'error': 'Test not found'}, status=404)

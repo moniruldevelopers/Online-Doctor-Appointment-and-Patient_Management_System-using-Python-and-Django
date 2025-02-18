@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'ckeditor',
     'import_export',
+
 ]
 
 SILENCED_SYSTEM_CHECKS = ["ckeditor.W001"]

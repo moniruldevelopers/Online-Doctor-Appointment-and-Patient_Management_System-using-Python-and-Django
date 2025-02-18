@@ -38,7 +38,7 @@
         </a>
         <div class="collapse" id="medicalRecordCollapse" aria-labelledby="headingMedicalRecords" data-bs-parent="#sidenavAccordion">
             <nav class="sb-sidenav-menu-nested nav">
-                <a class="nav-link" href="">Add Medical Record</a>
+                <a class="nav-link" href="{% url 'test_category_list' %}">Test Category List</a>
                 <a class="nav-link" href="">Manage Medical Records</a>
                 <a class="nav-link" href="">Patient Medical History</a>
             </nav>
@@ -72,7 +72,8 @@
         <div class="collapse" id="doctorCollapse" aria-labelledby="headingDoctor" data-bs-parent="#sidenavAccordion">
             <nav class="sb-sidenav-menu-nested nav">
                 <a class="nav-link" href="{% url 'admin_doctor_register' %}">Create Doctor Profile</a>
-                <a class="nav-link" href="{% url 'all_doctors' %}">View All Doctors</a>                
+                <a class="nav-link" href="{% url 'all_doctors' %}">View All Doctors</a>   
+                <a class="nav-link" href="{% url 'department_list' %}">Department List</a>              
             </nav>
         </div>
         

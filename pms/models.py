@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 import uuid
 from datetime import date
-
+from ckeditor.fields import RichTextField
 
 class SiteInfo(models.Model):
     site_name = models.CharField(max_length=20)
@@ -294,3 +294,28 @@ class PublicOnlineAppointment(models.Model):
 
     def __str__(self):
         return f"Appointment {self.appointment_id} - {self.patient_full_name}"
+
+
+
+
+# Test Category Model
+class TestCategory(models.Model):
+    name = models.CharField(max_length=255, unique=True)  # Test name
+    test_pad = RichTextField()  # Design or description of the test
+
+    def __str__(self):
+        return self.name
+
+# Report Model
+class Report(models.Model):
+    patient = models.ForeignKey('PatientProfile', on_delete=models.CASCADE)  # Select patient using PatientProfile
+    test = models.ForeignKey('TestCategory', on_delete=models.CASCADE)  # Select test name
+    report_content = RichTextField(blank=True)  # Paste the test_pad design dynamically
+
+    def save(self, *args, **kwargs):
+        if not self.report_content:
+            self.report_content = self.test.test_pad  # Use test_pad design as default content
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.patient.patient_id} - {self.test.name}"  

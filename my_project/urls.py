@@ -7,6 +7,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('pms.urls')),
     path('', include('authportal.urls')), 
+    path('select2/', include('django_select2.urls')),  # Add this line
     re_path(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),#debug false hole 
 ]
