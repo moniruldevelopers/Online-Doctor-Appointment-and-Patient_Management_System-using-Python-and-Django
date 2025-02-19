@@ -202,20 +202,15 @@ class TestCategoryForm(forms.ModelForm):
         }
 
 
+
+
 class ReportForm(forms.ModelForm):
+    patient = forms.ModelChoiceField(
+        queryset=PatientProfile.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control select2', 'data-placeholder': 'Search Patient ID'}),
+        label="Patient ID"
+    )
+
     class Meta:
         model = Report
         fields = ['patient', 'test', 'report_content']
-        widgets = {
-            'patient': forms.Select(attrs={
-                'class': 'form-control select2',
-                'data-placeholder': 'Search Patient ID...'
-            }),
-            'test': forms.Select(attrs={
-                'class': 'form-control'
-            }),
-            'report_content': forms.Textarea(attrs={
-                'class': 'form-control rich-text-editor',
-                'rows': '10'
-            })
-        }

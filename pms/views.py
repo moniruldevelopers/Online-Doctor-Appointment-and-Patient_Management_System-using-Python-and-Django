@@ -1343,12 +1343,108 @@ def delete_test_category(request, pk):
 
 
 
+def get_test_pad(request, test_id):
+    try:
+        test = TestCategory.objects.get(id=test_id)
+        return JsonResponse({'test_pad': test.test_pad})
+    except TestCategory.DoesNotExist:
+        return JsonResponse({'error': 'Test not found'}, status=404)
 
 
-class ReportListView(ListView):
-    model = Report
-    template_name = 'hospital/report/report_list.html'
-    context_object_name = 'reports'
+
+
+
+
+def report_list(request):
+    from datetime import date
+
+    query = request.GET.get('q', '')  # Get search query
+    reports = Report.objects.filter(
+        Q(patient__patient_id__icontains=query) | Q(patient__full_name__icontains=query)
+    ).order_by('-id')  # Search by patient ID or full name
+
+    # Calculate age for each patient in the report
+    for report in reports:
+        dob = report.patient.date_of_birth
+        today = date.today()
+        delta = today - dob
+
+        years = delta.days // 365
+        remaining_days = delta.days % 365
+        months = remaining_days // 30  # Approximation for months
+        days = remaining_days % 30
+
+        # Format the age dynamically
+        if years > 0:
+            report.patient.age = f"{years} years, {months} months"
+        elif months > 0:
+            report.patient.age = f"{months} months, {days} days"
+        else:
+            report.patient.age = f"{days} days"
+
+    paginator = Paginator(reports, 10)  # Show 10 reports per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'reports': page_obj,
+        'query': query,
+    }
+    return render(request, 'hospital/report/report_list.html', context)
+
+
+
+def report_view(request, report_id):
+    from datetime import date
+
+    report = get_object_or_404(Report, id=report_id)
+    dob = report.patient.date_of_birth
+    today = date.today()
+    delta = today - dob
+
+    years = delta.days // 365
+    remaining_days = delta.days % 365
+    months = remaining_days // 30  # Approximation for months
+    days = remaining_days % 30
+
+    # Format age
+    if years > 0:
+        report.patient.age = f"{years} years, {months} months"
+    elif months > 0:
+        report.patient.age = f"{months} months, {days} days"
+    else:
+        report.patient.age = f"{days} days"
+
+    context = {
+        'report': report,
+    }
+    return render(request, 'hospital/report/report_view.html', context)
+
+
+
+
+def patient_search(request):
+    query = request.GET.get('q', '')
+    patients = PatientProfile.objects.filter(patient_id__icontains=query)[:10]
+    results = [
+        {'id': patient.id, 'text': f"{patient.patient_id} - {patient.full_name}"}
+        for patient in patients
+    ]
+    return JsonResponse({'results': results})
+
+
+
+
+
+
+
+
+def patient_autocomplete(request):
+    query = request.GET.get('query', '')
+    patients = PatientProfile.objects.filter(id__icontains=query)
+    results = [{'id': str(p.id), 'text': str(p.id)} for p in patients]
+    data = {'results': results, 'total_count': len(results)}
+    return JsonResponse(data, safe=False)
 
 def report_create(request):
     if request.method == 'POST':
@@ -1359,7 +1455,7 @@ def report_create(request):
             return redirect('report_list')
     else:
         form = ReportForm()
-    return render(request, 'hospital/report/report_form.html', {'form': form})
+    return render(request, 'hospital/report/report_create_form.html', {'form': form})
 
 def report_edit(request, pk):
     report = get_object_or_404(Report, pk=pk)
@@ -1371,7 +1467,9 @@ def report_edit(request, pk):
             return redirect('report_list')
     else:
         form = ReportForm(instance=report)
-    return render(request, 'hospital/report/report_form.html', {'form': form, 'edit_mode': True})
+    return render(request, 'hospital/report/report_edit_form.html', {'form': form, 'report': report})
+
+
 
 def report_delete(request, pk):
     report = get_object_or_404(Report, pk=pk)
@@ -1380,15 +1478,3 @@ def report_delete(request, pk):
         messages.success(request, 'Medical report deleted successfully.')
     return redirect('report_list')
 
-def search_patients(request):
-    search_term = request.GET.get('term', '')
-    patients = PatientProfile.objects.filter(patient_id__icontains=search_term)[:10]
-    results = [{'id': p.id, 'text': f"{p.patient_id} - {p.full_name}"} for p in patients]
-    return JsonResponse({'results': results})
-
-def get_test_pad(request, test_id):
-    try:
-        test = TestCategory.objects.get(pk=test_id)
-        return JsonResponse({'test_pad': test.test_pad})
-    except TestCategory.DoesNotExist:
-        return JsonResponse({'error': 'Test not found'}, status=404)

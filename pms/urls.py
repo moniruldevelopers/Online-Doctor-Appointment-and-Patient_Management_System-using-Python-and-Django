@@ -111,10 +111,13 @@ urlpatterns = [
     path('test-categories/delete/<int:pk>/', delete_test_category, name='delete_test_category'),
 
     # medical report 
-    path('reports/', ReportListView.as_view(), name='report_list'),
+    path('reports/', report_list, name='report_list'),
+    path('report/<int:report_id>/', report_view, name='report_view'),
     path('reports/create/', report_create, name='report_create'),
     path('reports/<int:pk>/edit/', report_edit, name='report_edit'),
+    path('patient-search/', patient_search, name='patient_search'),
+    path('patients/autocomplete/', patient_autocomplete, name='patient_autocomplete'),
     path('reports/<int:pk>/delete/', report_delete, name='report_delete'),
-    path('api/test-category/<int:pk>/', get_test_pad, name='get_test_pad'),
+    path('get_test_pad/<int:test_id>/', get_test_pad, name='get_test_pad'),
 
 ]

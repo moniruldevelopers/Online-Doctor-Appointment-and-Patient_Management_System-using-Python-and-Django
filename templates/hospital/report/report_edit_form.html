@@ -1,0 +1,37 @@
+{% extends 'hospital/hospital_base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Edit Medical Report</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_patient" class="form-label">Patient ID</label>
+                            {{ form.patient }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_test" class="form-label">Test</label>
+                            {{ form.test }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_report_content" class="form-label">Report Content</label>
+                            {{ form.media }}
+                            {{ form.report_content }}
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary">Update Report</button>
+                            <a href="{% url 'report_list' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

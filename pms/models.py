@@ -5,6 +5,9 @@ from django.contrib.auth.models import User
 import uuid
 from datetime import date
 from ckeditor.fields import RichTextField
+from django.utils.timezone import now
+
+
 
 class SiteInfo(models.Model):
     site_name = models.CharField(max_length=20)
@@ -308,14 +311,15 @@ class TestCategory(models.Model):
 
 # Report Model
 class Report(models.Model):
-    patient = models.ForeignKey('PatientProfile', on_delete=models.CASCADE)  # Select patient using PatientProfile
-    test = models.ForeignKey('TestCategory', on_delete=models.CASCADE)  # Select test name
-    report_content = RichTextField(blank=True)  # Paste the test_pad design dynamically
+    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE)
+    test = models.ForeignKey(TestCategory, on_delete=models.CASCADE)
+    report_content = RichTextField(blank=True)
+    created_at = models.DateTimeField(default=now)  # Auto-add creation time
 
     def save(self, *args, **kwargs):
         if not self.report_content:
-            self.report_content = self.test.test_pad  # Use test_pad design as default content
+            self.report_content = self.test.test_pad
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.patient.patient_id} - {self.test.name}"  
+        return f"{self.patient.patient_id} - {self.test.name}"

@@ -1,48 +1,114 @@
-<!-- templates/reports/report_list.html -->
-{% extends 'base.html' %}
+{% extends 'hospital/hospital_base.html' %}
 
 {% block content %}
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Medical Reports</h2>
-        <a href="{% url 'report_create' %}" class="btn btn-primary">
-            Add Medical Report
-        </a>
-    </div>
-
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Patient ID</th>
-                    <th>Test Name</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for report in reports %}
-                <tr>
-                    <td>{{ report.patient.patient_id }}</td>
-                    <td>{{ report.test.name }}</td>
-                    <td>
-                        <a href="{% url 'report_edit' report.pk %}" class="btn btn-sm btn-info">
-                            <i class="fas fa-edit"></i>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h2 class="mb-0">Medical Reports</h2>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <a href="{% url 'report_create' %}" class="btn btn-success">
+                            <i class="fa fa-plus"></i> Add Medical Report
                         </a>
-                        <form action="{% url 'report_delete' report.pk %}" method="POST" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this report?')">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        <form method="get" class="d-flex">
+                            <input type="text" name="q" value="{{ query }}" placeholder="Search by Patient ID or Name" class="form-control me-2" />
+                            <button type="submit" class="btn btn-primary">Search</button>
                         </form>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="3" class="text-center">No medical reports found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Patient ID</th>
+                                    <th>Full Name</th>
+                                    <th>Age</th>
+                                    <th>Test</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for report in reports %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ report.patient.patient_id }}</td>
+                                    <td>{{ report.patient.full_name }}</td>
+                                    <td>{{ report.patient.age }}</td>
+                                    <td>{{ report.test.name }}</td>
+                                    <td>{{ report.created_at|date:"d M Y" }}</td>
+                                    <td>
+                                        <a href="{% url 'report_view' report.id %}" class="btn btn-info btn-sm me-1">
+                                            <i class="fa fa-eye"></i> View
+                                        </a>
+                                        <a href="{% url 'report_edit' report.id %}" class="btn btn-warning btn-sm me-1">
+                                            <i class="fa fa-edit"></i> Edit
+                                        </a>
+                                        <a href="{% url 'report_delete' report.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this report?');">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ query }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ query }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#id_patient').select2({
+            placeholder: 'Search Patient ID',
+            allowClear: true,
+            ajax: {
+                url: '{% url "patient_search" %}',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        q: params.term  // Search term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.results  // Format returned data
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 1  // At least 1 character before search
+        });
+    });
+</script>
+{% endblock %}
 {% endblock %}

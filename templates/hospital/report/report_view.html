@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4" id="reportContainer">
+    <div class="text-end">
+        <button onclick="printReport()" class="btn btn-primary mb-3">Print</button>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h4>Medical Report</h4>
+            <p><strong>Patient ID:</strong> {{ report.patient.patient_id }}</p>
+            <p><strong>Patient Name:</strong> {{ report.patient.user.username }}</p>
+            <p><strong>Age:</strong> {{ report.patient.age }}</p>
+            <p><strong>Test:</strong> {{ report.test.name }}</p>
+            <p><strong>Date:</strong> {{ report.created_at|date:"M d, Y H:i" }}</p>
+            <hr>
+            <div>
+                {{ report.report_content|safe }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function printReport() {
+        const reportContent = document.getElementById('reportContainer').innerHTML;
+        const originalContent = document.body.innerHTML;
+        document.body.innerHTML = reportContent;
+        window.print();
+        document.body.innerHTML = originalContent;
+        window.location.reload();  // Reload to restore original content
+    }
+</script>
+{% endblock %}
