@@ -1,0 +1,73 @@
+{% extends 'patient/patient_base.html' %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-file-medical-alt"></i> Report Details</h5>
+            <button class="btn btn-light btn-sm" onclick="window.print()">
+                <i class="fas fa-print"></i> Print
+            </button>
+        </div>
+        <div class="card-body p-3">
+            <table class="table table-sm table-bordered w-100">
+                <tbody>
+                    <tr>
+                        <th class="bg-light text-right" style="width: 20%;">
+                            <i class="fas fa-user"></i> Patient Name:
+                        </th>
+                        <td>{{ report.patient.full_name }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light text-right">
+                            <i class="fas fa-flask"></i> Test Type:
+                        </th>
+                        <td>{{ report.test.name }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light text-right">
+                            <i class="fas fa-calendar-alt"></i> Date:
+                        </th>
+                        <td>{{ report.created_at|date:"Y-m-d" }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light text-right">
+                            <i class="fas fa-file-alt"></i> Report Content:
+                        </th>
+                        <td>
+                            <div class="border p-2 bg-white">
+                                {{ report.report_content|safe }}
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer text-right">
+            <a href="{% url 'patient_admin' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Print Styling -->
+<style>
+    @media print {
+        body {
+            background: none;
+            color: #000;
+        }
+        .card, .card-header, .card-footer {
+            box-shadow: none !important;
+            border: none !important;
+        }
+        .btn, .btn-sm {
+            display: none !important;
+        }
+        .table th, .table td {
+            padding: 5px !important;
+        }
+    }
+</style>
+{% endblock content %}

@@ -5,7 +5,6 @@ from .views import *
 
 urlpatterns = [   
     path('',home,name='home'),
-
     path('site-info/', site_info_view, name='site-info'),
     path("contact/", contact_view, name="contact"),
     path('contact-list/', contact_list_view, name='contact_list'),  # URL for the contact list page
@@ -119,5 +118,8 @@ urlpatterns = [
     path('patients/autocomplete/', patient_autocomplete, name='patient_autocomplete'),
     path('reports/<int:pk>/delete/', report_delete, name='report_delete'),
     path('get_test_pad/<int:test_id>/', get_test_pad, name='get_test_pad'),
+
+    # patient report 
+    path('patient/report/<int:report_id>/', view_report, name='patient_report_view'),  # Updated URL
 
 ]

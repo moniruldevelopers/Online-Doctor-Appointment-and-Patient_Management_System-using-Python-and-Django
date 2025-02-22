@@ -309,6 +309,9 @@ class TestCategory(models.Model):
     def __str__(self):
         return self.name
 
+
+
+
 # Report Model
 class Report(models.Model):
     patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE)

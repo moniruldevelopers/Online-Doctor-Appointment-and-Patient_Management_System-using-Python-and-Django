@@ -62,8 +62,6 @@ def site_info_view(request):
 
 
 
-@login_required
-@user_passes_test(superuser_required)
 def contact_view(request):
     # Get the site information
     site_info = SiteInfo.objects.first()
@@ -274,18 +272,24 @@ def view_profile(request):
 
 def patient_admin(request):
     site_info = SiteInfo.objects.first()  # Get the first (and only) instance
+
+    # Get the logged-in user's patient profile safely
+    patient = getattr(request.user, 'patient_profile', None)
+
+    # Retrieve reports only if the patient profile exists, ordered by latest first
+    patient_reports = Report.objects.filter(patient=patient).order_by('-created_at') if patient else []
+
     context = {
         'site_info': site_info,
+        'patient_reports': patient_reports,
     }
-    return render(request, 'patient/patient_home.html')
-
-
-
+    return render(request, 'patient/patient_home.html', context)
 
 
 def hospital_admin(request):
     # Get the first (and only) instance of SiteInfo
     site_info = SiteInfo.objects.first()
+    total_reports = Report.objects.count()  # Count all reports
 
     # Get today's date for active appointments filter
     today = date.today()
@@ -304,6 +308,7 @@ def hospital_admin(request):
         'site_info': site_info,
         'total_active_appointments': total_active_appointments,  # Total active appointments for today
         'total_all_appointments': total_all_appointments,  # Total appointments of all time
+        'total_reports': total_reports,
     }
 
     return render(request, 'hospital/hospital_home.html', context)
@@ -1478,3 +1483,14 @@ def report_delete(request, pk):
         messages.success(request, 'Medical report deleted successfully.')
     return redirect('report_list')
 
+
+
+# patient report profile
+def view_report(request, report_id):
+    """ View individual patient report """
+    report = get_object_or_404(Report, id=report_id, patient=request.user.patient_profile)
+
+    context = {
+        'report': report
+    }
+    return render(request, 'patient/view_report.html', context)

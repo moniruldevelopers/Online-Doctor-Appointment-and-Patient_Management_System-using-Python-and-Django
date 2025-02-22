@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Page Not Found{% endblock title %}
+
+{% block content %}
+    <div class="container text-center py-5">
+        <!-- Error Icon -->
+        <div class="mb-4">
+            <i class="fas fa-exclamation-triangle fa-5x text-danger"></i>
+        </div>
+
+        <!-- Error Message -->
+        <h3 class="text-danger font-weight-bold mb-3">Requested Page Not Found</h3>
+
+        <!-- Redirect Button -->
+        <a href="{% url 'home' %}">
+            <button class="btn btn-primary btn-lg">Go Home</button>
+        </a>
+    </div>
+{% endblock content %}

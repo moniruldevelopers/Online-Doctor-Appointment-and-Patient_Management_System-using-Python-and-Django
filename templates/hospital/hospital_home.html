@@ -26,7 +26,7 @@
     
     <div class="row">
         <!-- Total Patients -->
-        <div class="col-xl-3 col-md-6">
+        <div class="col-xl-4 col-md-6">
             <div class="card bg-primary text-white mb-4">
                 <div class="card-body">
                     <h5>Total Patients</h5>
@@ -35,7 +35,7 @@
             </div>
         </div>
         <!-- Active Appointments -->
-        <div class="col-xl-3 col-md-6">
+        <div class="col-xl-4 col-md-6">
             <div class="card bg-warning text-white mb-4">
                 <a href="{% url 'active_appointments' %}" style="text-decoration: none; color:white;">
                     <div class="card-body">
@@ -45,21 +45,12 @@
                 </a>
             </div>
         </div>
-        <!-- Medical Records -->
-        <div class="col-xl-3 col-md-6">
+                <!-- Medical Records -->
+        <div class="col-xl-4 col-md-6">
             <div class="card bg-success text-white mb-4">
                 <div class="card-body">
                     <h5>Medical Records</h5>
-                    <h2>8,450</h2>
-                </div>
-            </div>
-        </div>
-        <!-- Pending Approvals -->
-        <div class="col-xl-3 col-md-6">
-            <div class="card bg-danger text-white mb-4">
-                <div class="card-body">
-                    <h5>Pending Approvals</h5>
-                    <h2>15</h2>
+                    <h2>{{ total_reports }}</h2>
                 </div>
             </div>
         </div>
